@@ -1,0 +1,4 @@
+name: batch-uploader
+mappings:
+  - prefix: batch-uploader
+    port: 9000

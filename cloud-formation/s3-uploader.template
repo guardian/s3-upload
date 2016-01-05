@@ -1,0 +1,54 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "S3 Uploader",
+  "Resources": {
+    "Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "Private"
+      }
+    },
+    "BucketPolicy": {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket": { "Ref": "Bucket" },
+        "PolicyDocument" : {
+          "Id": "BucketPolicy",
+          "Statement": [ {
+            "Sid": "BucketRestrictedWriteAccess",
+            "Action": [ "s3:PutObject" ],
+            "Effect": "Allow",
+            "Resource": { "Fn::Join": [ "", [ "arn:aws:s3:::", { "Ref": "Bucket" } , "/*" ] ] },
+            "Principal": { "AWS": { "Fn::GetAtt": [ "User", "Arn" ] } }
+          }, {
+            "Sid": "BucketPublicReadAccess",
+            "Action": [ "s3:GetObject" ],
+            "Effect": "Allow",
+            "Resource": { "Fn::Join": [ "", [ "arn:aws:s3:::", { "Ref": "Bucket" } , "/*" ] ] },
+            "Principal": "*"
+          } ]
+        }
+      }
+    },
+    "User": {
+      "Type": "AWS::IAM::User"
+    },
+    "HostKeys": {
+      "Type": "AWS::IAM::AccessKey",
+      "Properties": {
+        "UserName": { "Ref": "User" }
+      }
+    }
+  },
+  "Outputs": {
+    "AwsId": {
+      "Value": { "Ref": "HostKeys" }
+    },
+    "AwsSecret": {
+      "Value": { "Fn::GetAtt": [ "HostKeys", "SecretAccessKey" ] }
+    },
+    "Bucket": {
+      "Value": { "Ref": "Bucket" }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+@import com.gu.pandomainauth.model.User
+@import java.io.File
+@(user: User, file: File)
+
+@main(user, "File already exists") {
+    <div>
+        <h1>Upload failed</h1>
+
+        The file @file.getName already exits, please rename and try uploading again.
+    </div>
+}

@@ -1,0 +1,33 @@
+@import java.net.URI
+@(loginUri: URI)
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Login| S3 Uploader</title>
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+        <link rel="stylesheet" href="@routes.Assets.at("js/node_modules/material-design-lite/material.min.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    </head>
+
+    <body>
+        <div class="layout mdl-layout mdl-color--grey-100 mdl-js-layout mdl-layout--fixed-header">
+            <header class="mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
+                <div class="mdl-layout__header-row">
+                    <span class="mdl-layout-title">Login</span>
+                    <div class="mdl-layout-spacer"></div>
+                    S3 Uploader
+                </div>
+            </header>
+            <main class="page-content mdl-layout__content mdl-color--grey-100">
+                <h2>
+                    Not logged in - click <a href="@loginUri">here</a> to login.
+                </h2>
+            </main>
+        </div>
+
+        <script src="@routes.Assets.at("js/node_modules/material-design-lite/material.min.js")"></script>
+    </body>
+</html>

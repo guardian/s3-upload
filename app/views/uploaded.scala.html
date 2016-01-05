@@ -1,0 +1,15 @@
+@import lib.S3Upload
+@import com.gu.pandomainauth.model.User
+@(user: User, s3Upload: S3Upload)
+
+@main(user, "File Uploaded") {
+    <div>
+        <h1>Thanks</h1>
+        <p>
+            Here's a <a href="@s3Upload.url">link</a> to your file:
+        </p>
+        <p>
+            @s3Upload.url
+        </p>
+    </div>
+}
