@@ -1,0 +1,176 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: S3 Uploader
+Parameters:
+  SSLCertificateId:
+    Type: String
+    Description: ARN of the SSL certificate to be used for the load balancer
+  Stage:
+    Type: String
+    Description: Environment name
+    AllowedValues:
+    - TEST
+    - PROD
+    Default: PROD
+  KeyName: 
+    Description: 'The EC2 Key Pair to allow SSH access to the instance'
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: 'digital-cms-team'
+  DomainRoot:
+    Description: Root domain (suffix) for all deployed services
+    Type: String
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: {Ref: Bucket}
+      PolicyDocument:
+        Statement:
+        - Action: ['s3:GetObject']
+          Effect: Allow
+          Principal: '*'
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: Bucket
+              - /*
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: ['sts:AssumeRole']
+          Effect: Allow
+          Principal: { Service: [ec2.amazonaws.com] }
+  Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: BatchUploaderPolicy
+      PolicyDocument:
+        Statement:
+        - Action: ['ec2:DescribeTags']
+          Effect: Allow
+          Resource: '*'
+        - Action: ['s3:GetObject']
+          Effect: Allow
+          Resource: 'arn:aws:s3:::media-service-dist/*'
+        - Action: ['s3:PutObject']
+          Effect: Allow
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: Bucket
+              - /*
+      Roles:
+      - {Ref: Role}
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+      - {Ref: Role}
+
+  ELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: batch-uploader ELB
+      SecurityGroupIngress:
+      - {IpProtocol: tcp, FromPort: 443, ToPort: 443, CidrIp: 0.0.0.0/0}
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: batch-uploader instance
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 9000
+        ToPort: 9000
+        SourceSecurityGroupId: {'Fn::GetAtt': [ELBSecurityGroup, GroupId]}
+      - {IpProtocol: tcp, FromPort: 22, ToPort: 22, CidrIp: 77.91.248.0/21}
+
+  ELB:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      AvailabilityZones: {'Fn::GetAZs': ''}
+      SecurityGroups:
+      - Fn::GetAtt: [ELBSecurityGroup, GroupId]
+      Listeners:
+      - {LoadBalancerPort: 80, InstancePort: 9000, Protocol: HTTP}
+      - {LoadBalancerPort: 443, InstancePort: 9000, Protocol: HTTPS, SSLCertificateId: {Ref: SSLCertificateId}}
+      HealthCheck:
+        Target: 'HTTP:9000/healthcheck'
+        HealthyThreshold: 2
+        UnhealthyThreshold: 2
+        Interval: 10
+        Timeout: 5
+      Tags:
+      - { Key: App, Value: batch-uploader }
+      - { Key: Stack, Value: media-service }
+      - { Key: Stage, Value: {Ref: Stage} }
+
+  ASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones: {'Fn::GetAZs': ''}
+      Cooldown: '180'
+      HealthCheckGracePeriod: 300
+      HealthCheckType: ELB
+      LaunchConfigurationName: {Ref: LaunchConfig}
+      LoadBalancerNames:
+      - { Ref: ELB }
+      MaxSize: 2
+      MinSize: 1
+      DesiredCapacity: 1
+      Tags:
+      - { Key: App, Value: batch-uploader, PropagateAtLaunch: true }
+      - { Key: Stack, Value: media-service, PropagateAtLaunch: true }
+      - { Key: Stage, Value: {Ref: Stage}, PropagateAtLaunch: true }
+
+
+  LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      KeyName: {Ref: KeyName}
+      ImageId: ami-a682c5d1
+      SecurityGroups:
+      - {Ref: InstanceSecurityGroup}
+      InstanceType: t2.small
+      IamInstanceProfile: {Ref: InstanceProfile}
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash -ev
+          apt-get -y update
+
+          adduser --system --home /home/media-service --disabled-password media-service
+
+          mkdir /home/media-service/logs
+          mkdir /etc/gu
+
+          cat > /etc/gu/stage <<'EOF'
+            {Ref: Stage}
+          'EOF'
+
+          aws --region eu-west-1 s3 cp s3://media-service-dist/media-service/{Ref: Stage}/batch-uploader/app.zip /home/media-service/app.zip
+          aws --region eu-west-1 s3 cp s3://media-service-dist/media-service/{Ref: Stage}/batch-uploader/batch-uploader.conf /etc/init/batch-uploader.conf
+
+          unzip -d /home/media-service /home/media-service/app.zip
+
+          chown -R media-service /home/media-service
+          chgrp -R media-service /home/media-service
+
+          cat > /etc/gu/batch-uploader.properties <<'EOF'
+            domain.root={Ref: DomainRoot}
+            s3.bucket={Ref: Bucket}
+          'EOF'
+
+          start batch-uploader
+Outputs:
+  Bucket:
+    Value:
+      Ref: Bucket
