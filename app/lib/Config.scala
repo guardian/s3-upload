@@ -2,12 +2,12 @@ package lib
 
 import java.net.URI
 
-import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 
 object Config {
   val properties = Properties.fromPath("/etc/gu/s3-uploader.properties")
 
-  val awsCredentials = new BasicAWSCredentials(properties("aws.id"), properties("aws.secret"))
+  val awsCredentials = new DefaultAWSCredentialsProviderChain()
 
   val bucketName = properties("s3.bucket")
 
