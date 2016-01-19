@@ -24,3 +24,4 @@ def env(key: String): Option[String] = Option(System.getenv(key))
 riffRaffBuildIdentifier := env("BUILD_NUMBER").getOrElse("DEV")
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
+riffRaffManifestVcsUrl := "git@github.com:guardian/s3-upload.git"
