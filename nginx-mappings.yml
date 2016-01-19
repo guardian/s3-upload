@@ -1,4 +1,4 @@
-name: batch-uploader
+name: s3-uploader
 mappings:
-  - prefix: batch-uploader
+  - prefix: s3-uploader
     port: 9000

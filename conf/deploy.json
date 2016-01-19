@@ -1,0 +1,24 @@
+{
+  "defaultStacks": ["media-service"],
+  "packages": {
+    "s3-uploader": {
+      "type": "autoscaling",
+      "data": {
+        "port": 9000,
+        "bucket": "media-service-dist",
+        "publicReadAcl": false
+      }
+    }
+  },
+  "recipes": {
+    "default": {
+      "depends": ["artifactUploadOnly", "deployOnly"]
+    },
+    "deployOnly": {
+      "actionsBeforeApp": ["s3-uploader.deploy"]
+    },
+    "artifactUploadOnly": {
+      "actionsBeforeApp": ["s3-uploader.uploadArtifacts"]
+    }
+  }
+}

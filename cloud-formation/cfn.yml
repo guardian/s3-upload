@@ -79,14 +79,14 @@ Resources:
   ELBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: batch-uploader ELB
+      GroupDescription: s3-uploader ELB
       SecurityGroupIngress:
       - {IpProtocol: tcp, FromPort: 443, ToPort: 443, CidrIp: 0.0.0.0/0}
 
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: batch-uploader instance
+      GroupDescription: s3-uploader instance
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 9000
@@ -110,7 +110,7 @@ Resources:
         Interval: 10
         Timeout: 5
       Tags:
-      - { Key: App, Value: batch-uploader }
+      - { Key: App, Value: s3-uploader }
       - { Key: Stack, Value: media-service }
       - { Key: Stage, Value: {Ref: Stage} }
 
@@ -128,7 +128,7 @@ Resources:
       MinSize: 1
       DesiredCapacity: 1
       Tags:
-      - { Key: App, Value: batch-uploader, PropagateAtLaunch: true }
+      - { Key: App, Value: s3-uploader, PropagateAtLaunch: true }
       - { Key: Stack, Value: media-service, PropagateAtLaunch: true }
       - { Key: Stage, Value: {Ref: Stage}, PropagateAtLaunch: true }
 
@@ -156,20 +156,20 @@ Resources:
             {Ref: Stage}
           'EOF'
 
-          aws --region eu-west-1 s3 cp s3://media-service-dist/media-service/{Ref: Stage}/batch-uploader/app.zip /home/media-service/app.zip
-          aws --region eu-west-1 s3 cp s3://media-service-dist/media-service/{Ref: Stage}/batch-uploader/batch-uploader.conf /etc/init/batch-uploader.conf
+          cat > /etc/gu/s3-uploader.properties <<'EOF'
+            domain.root={Ref: DomainRoot}
+            s3.bucket={Ref: Bucket}
+          'EOF'
+
+          aws --region eu-west-1 s3 cp s3://media-service-dist/media-service/{Ref: Stage}/s3-uploader/app.zip /home/media-service/app.zip
+          aws --region eu-west-1 s3 cp s3://media-service-dist/media-service/{Ref: Stage}/s3-uploader/s3-uploader.conf /etc/init/s3-uploader.conf
 
           unzip -d /home/media-service /home/media-service/app.zip
 
           chown -R media-service /home/media-service
           chgrp -R media-service /home/media-service
 
-          cat > /etc/gu/batch-uploader.properties <<'EOF'
-            domain.root={Ref: DomainRoot}
-            s3.bucket={Ref: Bucket}
-          'EOF'
-
-          start batch-uploader
+          start s3-uploader
 Outputs:
   Bucket:
     Value:
