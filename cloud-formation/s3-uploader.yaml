@@ -153,18 +153,19 @@ Resources:
           mkdir /etc/gu
 
           cat > /etc/gu/stage <<'EOF'
-            {Ref: Stage}
+            TEST
           'EOF'
 
           cat > /etc/gu/s3-uploader.properties <<'EOF'
-            domain.root={Ref: DomainRoot}
-            s3.bucket={Ref: Bucket}
+            domain.root=test.dev-gutools.co.uk
+            s3.bucket=aa-test-bucket-1805cv9nqmat7
           'EOF'
 
-          aws --region eu-west-1 s3 cp s3://media-service-dist/media-service/{Ref: Stage}/s3-uploader/app.zip /home/media-service/app.zip
-          aws --region eu-west-1 s3 cp s3://media-service-dist/media-service/{Ref: Stage}/s3-uploader/s3-uploader.conf /etc/init/s3-uploader.conf
+          aws s3 cp s3://media-service-dist/media-service/TEST/s3-uploader/s3-uploader.conf /etc/init
+          aws s3 cp s3://media-service-dist/media-service/TEST/s3-uploader/s3-uploader-1.0.tgz /home/media-service
 
-          unzip -d /home/media-service /home/media-service/app.zip
+          unzip -d /home/media-service /home/media-service/s3-uploader-1.0.tgz
+          ln -s /home/media-service/s3-uploader-1.0 /home/media-service/s3-uploader
 
           chown -R media-service /home/media-service
           chgrp -R media-service /home/media-service
