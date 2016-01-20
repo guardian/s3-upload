@@ -8,6 +8,7 @@ lazy val `s3-uploader` = (project in file("."))
 def env(key: String): Option[String] = Option(System.getenv(key))
 
 libraryDependencies ++= Seq(
+  cache, ws,
   "com.amazonaws" % "aws-java-sdk-s3" % "1.10.44",
   "com.gu" %% "pan-domain-auth-verification" % "0.2.10"
 )
