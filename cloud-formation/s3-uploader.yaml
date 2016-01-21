@@ -33,11 +33,7 @@ Resources:
           Effect: Allow
           Principal: '*'
           Resource:
-            Fn::Join:
-            - ''
-            - - 'arn:aws:s3:::'
-              - Ref: Bucket
-              - /*
+            Fn::Join: ['', ['arn:aws:s3:::', {Ref: Bucket}, '/*' ]]
   Role:
     Type: AWS::IAM::Role
     Properties:
@@ -62,11 +58,7 @@ Resources:
         - Action: ['s3:PutObject']
           Effect: Allow
           Resource:
-            Fn::Join:
-            - ''
-            - - 'arn:aws:s3:::'
-              - Ref: Bucket
-              - /*
+            Fn::Join: ['', ['arn:aws:s3:::', {Ref: Bucket}, '/*' ]]
       Roles:
       - {Ref: Role}
   InstanceProfile:
@@ -104,7 +96,7 @@ Resources:
       - {LoadBalancerPort: 80, InstancePort: 9000, Protocol: HTTP}
       - {LoadBalancerPort: 443, InstancePort: 9000, Protocol: HTTPS, SSLCertificateId: {Ref: SSLCertificateId}}
       HealthCheck:
-        Target: 'HTTP:9000/healthcheck'
+        Target: 'HTTP:9000/management/healthcheck'
         HealthyThreshold: 2
         UnhealthyThreshold: 2
         Interval: 10
@@ -143,34 +135,38 @@ Resources:
       InstanceType: t2.small
       IamInstanceProfile: {Ref: InstanceProfile}
       UserData:
-        Fn::Base64: |
-          #!/bin/bash -ev
-          apt-get -y update
+        Fn::Base64:
+          Fn::Join:
+          - ''
+          - - |
+              #!/bin/bash -ev
+              apt-get -y update
+              adduser --system --home /home/media-service --disabled-password media-service
+              mkdir /home/media-service/logs
+              mkdir /etc/gu
 
-          adduser --system --home /home/media-service --disabled-password media-service
+            - Fn::Join:
+              - '
 
-          mkdir /home/media-service/logs
-          mkdir /etc/gu
+                '
+              - - Fn::Join: ['', ['STAGE=', {Ref: Stage}]]
+                - Fn::Join: ['', ['DOMAINROOT=', {Ref: DomainRoot}]]
+                - Fn::Join: ['', ['BUCKET=', {Ref: Bucket}]]
+                - Fn::Join: ['', ['aws s3 cp s3://media-service-dist/media-service/', {Ref: Stage}, '/s3-uploader/s3-uploader.conf /etc/init']]
+                - Fn::Join: ['', ['aws s3 cp s3://media-service-dist/media-service/', {Ref: Stage}, '/s3-uploader/s3-uploader-1.0.tgz /home/media-service']]
 
-          cat > /etc/gu/stage <<'EOF'
-            TEST
-          'EOF'
+            - |
 
-          cat > /etc/gu/s3-uploader.properties <<'EOF'
-            domain.root=test.dev-gutools.co.uk
-            s3.bucket=aa-test-bucket-1805cv9nqmat7
-          'EOF'
+              echo $STAGE > /etc/gu/stage
+              echo "panda.domain=$DOMAINROOT" >> /etc/gu/s3-uploader.properties
+              echo "s3.bucket=$BUCKET" >> /etc/gu/s3-uploader.properties
 
-          aws s3 cp s3://media-service-dist/media-service/TEST/s3-uploader/s3-uploader.conf /etc/init
-          aws s3 cp s3://media-service-dist/media-service/TEST/s3-uploader/s3-uploader-1.0.tgz /home/media-service
+              tar -xzf /home/media-service/s3-uploader-1.0.tgz -C /home/media-service
+              mv /home/media-service/s3-uploader-1.0 /home/media-service/s3-uploader
 
-          unzip -d /home/media-service /home/media-service/s3-uploader-1.0.tgz
-          ln -s /home/media-service/s3-uploader-1.0 /home/media-service/s3-uploader
+              chown -R media-service /home/media-service
 
-          chown -R media-service /home/media-service
-          chgrp -R media-service /home/media-service
-
-          start s3-uploader
+              start s3-uploader
 Outputs:
   Bucket:
     Value:

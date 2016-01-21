@@ -2,4 +2,3 @@ logs
 project/project
 target
 node_modules
-*.py[cod]
