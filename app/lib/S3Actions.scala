@@ -12,7 +12,12 @@ case class S3Upload(url: URI)
 
 object S3Upload {
   def build(putObjectRequest: PutObjectRequest) = {
-    S3Upload(new URI(s"https://${putObjectRequest.getBucketName}.s3.amazonaws.com/${putObjectRequest.getKey}"))
+    val uri = Config.stage match {
+      case "PROD" => s"https://uploads.guim.co.uk/${putObjectRequest.getKey}"
+      case _ => s"https://${putObjectRequest.getBucketName}.s3.amazonaws.com/${putObjectRequest.getKey}"
+    }
+
+    S3Upload(new URI(uri))
   }
 }
 
