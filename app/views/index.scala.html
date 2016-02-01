@@ -1,12 +1,15 @@
+@import helper._
 @import com.gu.pandomainauth.model.User
-@(user: User)
+@(user: User)(implicit request: RequestHeader)
 
 @main(user, "Choose a file to upload") {
     <div class="mdl-grid">
         <div class="mdl-cell mdl-cell--12-col">
             <h1>Choose a file to upload</h1>
 
-            <form action="@routes.Application.upload" method="post" enctype="multipart/form-data">
+            @helper.form(action = routes.Application.uploadFile, 'enctype -> "multipart/form-data") {
+                @CSRF.formField
+
                 <input id="fileChooser" type="file" name="files" required hidden>
 
                 <button type="button" class="file-choose-button mdl-button mdl-js-button"
@@ -17,7 +20,8 @@
                 <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">
                     Upload
                 </button>
-            </form>
+            }
+
         </div>
 
     </div>

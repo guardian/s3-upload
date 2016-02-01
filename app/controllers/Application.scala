@@ -7,7 +7,7 @@ import play.api.mvc._
 
 object Application extends Controller {
   def index = PanAuthentication { request => {
-      Ok(views.html.index(request.user))
+      Ok(views.html.index(request.user)(request))
     }
   }
 
@@ -23,13 +23,13 @@ object Application extends Controller {
 
       S3Actions.upload(file).map(s3Upload => {
         file.delete()
-        Ok(views.html.uploaded(request.user, s3Upload))
+        Ok(views.html.uploaded(request.user, s3Upload)(request))
       }).getOrElse({
         file.delete()
-        Ok(views.html.duplicate(request.user, file))
+        Ok(views.html.duplicate(request.user, file)(request))
       })
     }.getOrElse {
-      BadRequest(views.html.index(request.user))
+      BadRequest(views.html.index(request.user)(request))
     }
   }
 }

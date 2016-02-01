@@ -1,6 +1,6 @@
 @import com.gu.pandomainauth.model.User
 @import java.io.File
-@(user: User, file: File)
+@(user: User, file: File)(implicit request: RequestHeader)
 
 @main(user, "File already exists") {
     <div>

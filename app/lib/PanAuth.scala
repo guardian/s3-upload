@@ -35,15 +35,15 @@ object PanAuthentication extends ActionBuilder[({ type R[A] = AuthenticatedReque
               case user: Authenticated => {
                 block(new AuthenticatedRequest(user.authedUser.user, request))
               }
-              case _: Expired => Future(Unauthorized(views.html.login(Config.loginUri)))
+              case _: Expired => Future(Unauthorized(views.html.login(Config.loginUri)(request)))
 
-              case _ => Future(Unauthorized(views.html.login(Config.loginUri)))
+              case _ => Future(Unauthorized(views.html.login(Config.loginUri)(request)))
             }
           }
-          case _ => Future(Unauthorized(views.html.login(Config.loginUri)))
+          case _ => Future(Unauthorized(views.html.login(Config.loginUri)(request)))
         }
       }
-      case _ => Future(Unauthorized(views.html.login(Config.loginUri)))
+      case _ => Future(Unauthorized(views.html.login(Config.loginUri)(request)))
     }
   }
 }

@@ -1,6 +1,6 @@
 @import lib.S3Upload
 @import com.gu.pandomainauth.model.User
-@(user: User, s3Upload: S3Upload)
+@(user: User, s3Upload: S3Upload)(implicit request: RequestHeader)
 
 @main(user, "File Uploaded") {
     <div>
