@@ -53,7 +53,7 @@ object S3Actions {
 
   private def getCurrentDate = {
     val now = Calendar.getInstance().getTime
-    val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
+    val dateFormat = new SimpleDateFormat("yyyy/MM/dd")
     dateFormat.format(now)
   }
 
