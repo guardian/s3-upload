@@ -14,8 +14,6 @@ object Config {
 
   val domain = properties("panda.domain")
 
-  val baseLoginUri = new URI(s"https://login.$domain/login?returnUrl=")
-
   val loginUri = new URI(s"https://login.$domain/login?returnUrl=https://s3-uploader.$domain")
 
   implicit val stage : String = {
