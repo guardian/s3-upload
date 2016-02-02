@@ -18,6 +18,10 @@ Parameters:
   DomainRoot:
     Description: Root domain (suffix) for all deployed services
     Type: String
+  PlayApplicationSecret:
+    Description: application.secret for Play configuration
+    Type: String
+    NoEcho: true
 Resources:
   Bucket:
     Type: AWS::S3::Bucket
@@ -166,6 +170,11 @@ Resources:
 
               chown -R media-service /home/media-service
 
+            - Fn::Join: ['', ['sed "s/%APPLICATION_SECRET%/', {Ref: PlayApplicationSecret}, '/g" /home/media-service/s3-uploader/conf/application.conf > /home/media-service/s3-uploader/conf/application.conf_']]
+
+            - |
+
+              mv /home/media-service/s3-uploader/conf/application.conf_ /home/media-service/s3-uploader/conf/application.conf
               start s3-uploader
 Outputs:
   Bucket:
