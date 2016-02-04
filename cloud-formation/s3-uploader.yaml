@@ -22,12 +22,19 @@ Parameters:
     Description: application.secret for Play configuration
     Type: String
     NoEcho: true
+Mappings:
+  BucketName:
+    Stage:
+      CODE: "uploads-origin.code.dev-guim.co.uk"
+      PROD: "uploads-origin.guim.co.uk"
 Resources:
   Bucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private
-  BucketPolicy:
+      BucketName:
+        Fn::FindInMap: ['BucketName', 'Stage', {Ref: Stage}]
+  BucketReadPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: {Ref: Bucket}
@@ -176,7 +183,3 @@ Resources:
 
               mv /home/media-service/s3-uploader/conf/application.conf_ /home/media-service/s3-uploader/conf/application.conf
               start s3-uploader
-Outputs:
-  Bucket:
-    Value:
-      Ref: Bucket
