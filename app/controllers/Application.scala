@@ -21,7 +21,7 @@ object Application extends Controller {
       val file = new File(s"/tmp/${f.filename}")
       f.ref.moveTo(file)
 
-      S3Actions.upload(file).map(s3Upload => {
+      S3Actions.upload(file, request.user).map(s3Upload => {
         file.delete()
         Ok(views.html.uploaded(request.user, s3Upload)(request))
       }).getOrElse({

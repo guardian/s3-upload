@@ -6,7 +6,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.{PutObjectRequest, PutObjectResult, AmazonS3Exception}
+import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest, PutObjectResult, AmazonS3Exception}
+import com.gu.pandomainauth.model.User
 
 case class S3Upload(url: URI)
 
@@ -24,12 +25,15 @@ object S3Upload {
 object S3Actions {
   val s3Client = new AmazonS3Client(Config.awsCredentials)
 
-  def upload(file: File): Option[S3Upload] = {
+  def upload(file: File, user: User): Option[S3Upload] = {
     val key = getS3Key(file)
 
     getObject(key) match {
       case None => {
-        val request = new PutObjectRequest(Config.bucketName, key, file)
+        val metadata = new ObjectMetadata
+        metadata.addUserMetadata("author", user.email)
+        
+        val request = new PutObjectRequest(Config.bucketName, key, file).withMetadata(metadata)
 
         s3Client.putObject(request) match {
           case _: PutObjectResult   => Some(S3Upload.build(request))
