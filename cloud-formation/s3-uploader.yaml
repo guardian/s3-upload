@@ -140,7 +140,7 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       KeyName: {Ref: KeyName}
-      ImageId: ami-a682c5d1
+      ImageId: ami-6857e51b
       SecurityGroups:
       - {Ref: InstanceSecurityGroup}
       InstanceType: t2.small
