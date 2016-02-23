@@ -1,0 +1,11 @@
+@import com.gu.pandomainauth.model.User
+@import java.io.File
+@(user: User, maxContentLength: Long)
+
+@main(user, "File too large") {
+    <div>
+        <h1>Upload failed</h1>
+
+        Files cannot exceed @maxContentLength MB in size.
+    </div>
+}

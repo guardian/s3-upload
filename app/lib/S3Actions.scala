@@ -48,10 +48,7 @@ object S3Actions {
     try {
       s3Client.getObject(Config.bucketName, key)
     } catch {
-      case e: AmazonS3Exception if e.getStatusCode.equals(403) => {
-        println("object not found")
-        None
-      }
+      case e: AmazonS3Exception if e.getStatusCode.equals(404) => None
     }
   }
 
