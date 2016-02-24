@@ -2,7 +2,7 @@ package controllers
 
 import java.io.File
 
-import lib.{PanAuthentication, S3Actions, Config}
+import lib.{PanAuthentication, S3Actions}
 import play.api.mvc._
 
 object Application extends Controller {
@@ -16,10 +16,12 @@ object Application extends Controller {
     }
   }
 
-  def uploadFile = PanAuthentication (parse.maxLength(Config.mbToBytes(Config.maxContentLength), parse.multipartFormData)) { request =>
+  private def bytesToMb (bytes: Long): Long = bytes / 1024 / 1024
+
+  def uploadFile = PanAuthentication (parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)) { request =>
     request.body match {
       case Left(MaxSizeExceeded(limit)) => {
-        EntityTooLarge(views.html.tooLarge(request.user, Config.bytesToMb(limit)))
+        EntityTooLarge(views.html.tooLarge(request.user, bytesToMb(limit)))
       }
 
       case Right(multipartForm) => {

@@ -14,11 +14,6 @@ object Config {
 
   val domain = properties("panda.domain")
 
-  val maxContentLength = 50
-
-  def mbToBytes (mb: Long): Long = mb * 1024 * 1024
-  def bytesToMb (bytes: Long): Long = bytes / 1024 / 1024
-
   val loginUri = new URI(s"https://login.$domain/login?returnUrl=https://s3-uploader.$domain")
 
   implicit val stage : String = {
