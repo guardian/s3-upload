@@ -23,6 +23,8 @@ object S3Upload {
 }
 
 object S3Actions {
+  private val s3NotFoundStatusList = List(403, 404)
+
   val s3Client = new AmazonS3Client(Config.awsCredentials)
 
   def upload(file: File, user: User): Option[S3Upload] = {
@@ -48,7 +50,7 @@ object S3Actions {
     try {
       s3Client.getObject(Config.bucketName, key)
     } catch {
-      case e: AmazonS3Exception if e.getStatusCode.equals(404) => None
+      case e: AmazonS3Exception if s3NotFoundStatusList.contains(e.getStatusCode) => None
     }
   }
 

@@ -16,10 +16,10 @@ object Application extends Controller {
     }
   }
 
-  def uploadFile = PanAuthentication (parse.maxLength(Config.maxContentLengthMB, parse.multipartFormData)) { request =>
+  def uploadFile = PanAuthentication (parse.maxLength(Config.mbToBytes(Config.maxContentLength), parse.multipartFormData)) { request =>
     request.body match {
-      case Left(MaxSizeExceeded(length)) => {
-        EntityTooLarge(views.html.tooLarge(request.user, Config.maxContentLength))
+      case Left(MaxSizeExceeded(limit)) => {
+        EntityTooLarge(views.html.tooLarge(request.user, Config.bytesToMb(limit)))
       }
 
       case Right(multipartForm) => {
