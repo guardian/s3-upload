@@ -152,6 +152,7 @@ Resources:
           - - |
               #!/bin/bash -ev
               apt-get -y update
+              apt-get -y upgrade
               adduser --system --home /home/media-service --disabled-password media-service
               mkdir /home/media-service/logs
               mkdir /etc/gu
