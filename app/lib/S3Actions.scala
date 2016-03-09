@@ -9,16 +9,25 @@ import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest, PutObjectResult, AmazonS3Exception}
 import com.gu.pandomainauth.model.User
 
-case class S3Upload(url: URI)
+trait S3UploadResponse {
+  def fileName : String
+  def msg  : Option[String]
+}
 
-object S3Upload {
+case class S3UploadSuccess(url: URI, fileName: String = null, msg: Option[String] = null)
+  extends S3UploadResponse
+
+case class S3UploadFailure(fileName: String = null, msg: Option[String] = null)
+  extends S3UploadResponse
+
+object S3UploadResponse {
   def build(putObjectRequest: PutObjectRequest) = {
     val uri = Config.stage match {
       case "PROD" => s"https://uploads.guim.co.uk/${putObjectRequest.getKey}"
       case _ => s"https://${putObjectRequest.getBucketName}.s3.amazonaws.com/${putObjectRequest.getKey}"
     }
 
-    S3Upload(new URI(uri))
+    S3UploadSuccess(new URI(uri), putObjectRequest.getKey)
   }
 }
 
@@ -27,22 +36,22 @@ object S3Actions {
 
   val s3Client = new AmazonS3Client(Config.awsCredentials)
 
-  def upload(file: File, user: User): Option[S3Upload] = {
+  def upload(file: File, user: User): S3UploadResponse = {
     val key = getS3Key(file)
 
     getObject(key) match {
       case None => {
         val metadata = new ObjectMetadata
         metadata.addUserMetadata("author", user.email)
-        
+
         val request = new PutObjectRequest(Config.bucketName, key, file).withMetadata(metadata)
 
         s3Client.putObject(request) match {
-          case _: PutObjectResult   => Some(S3Upload.build(request))
-          case _                    => None
+          case _: PutObjectResult   => S3UploadResponse.build(request)
+          case _                 => S3UploadFailure(file.getName, Some("Upload Failed"))
         }
       }
-      case _ => None
+      case _ => S3UploadFailure(file.getName, Some("File with that name already exists"))
     }
   }
 

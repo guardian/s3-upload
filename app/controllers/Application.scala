@@ -1,8 +1,7 @@
 package controllers
 
 import java.io.File
-
-import lib.{PanAuthentication, S3Actions}
+import lib._
 import play.api.mvc._
 
 object Application extends Controller {
@@ -25,20 +24,15 @@ object Application extends Controller {
       }
 
       case Right(multipartForm) => {
-        multipartForm.file("files").map { f =>
+        val uploads : Seq[S3UploadResponse] = multipartForm.files.map { f =>
           val file = new File(s"/tmp/${f.filename}")
           f.ref.moveTo(file)
-
-          S3Actions.upload(file, request.user).map(s3Upload => {
-            file.delete()
-            Ok(views.html.uploaded(request.user, s3Upload)(request))
-          }).getOrElse({
-            file.delete()
-            Ok(views.html.duplicate(request.user, file)(request))
-          })
-        }.getOrElse {
-          BadRequest(views.html.index(request.user)(request))
+          val res = S3Actions.upload(file, request.user)
+          file.delete()
+          res
         }
+
+        Ok(views.html.uploaded(request.user, uploads)(request))
       }
     }
   }

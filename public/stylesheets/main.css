@@ -33,7 +33,7 @@
 
 .page-content {
     padding: 30px;
-    margin: 0 auto;
+    margin-left: 80%;
 }
 
 .material-icons {
@@ -56,4 +56,16 @@
 .layout .navigation .mdl-navigation__link:hover {
     background-color: #00BCD4;
     color: #37474F;
+}
+
+.success {
+    color: lightgreen;
+}
+
+.success a {
+    color: lightblue;
+}
+
+.failure {
+    color: red;
 }

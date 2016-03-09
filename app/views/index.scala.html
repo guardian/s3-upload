@@ -5,12 +5,12 @@
 @main(user, "Choose a file to upload") {
     <div class="mdl-grid">
         <div class="mdl-cell mdl-cell--12-col">
-            <h1>Choose a file to upload</h1>
+            <h1>Choose files to upload</h1>
 
             @helper.form(action = routes.Application.uploadFile, 'enctype -> "multipart/form-data") {
                 @CSRF.formField
 
-                <input id="fileChooser" type="file" name="files" required hidden>
+                <input id="fileChooser" type="file" name="files" multiple required hidden>
 
                 <button type="button" class="file-choose-button mdl-button mdl-js-button"
                         onclick="document.getElementById('fileChooser').click()">
