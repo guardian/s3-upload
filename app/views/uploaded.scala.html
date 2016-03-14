@@ -5,7 +5,7 @@
 @(user: User, s3Uploads: Seq[S3UploadResponse])(implicit request: RequestHeader)
 
 @main(user, "File Uploaded") {
-    <div>
+    <div class="results">
         <h3>Upload Results</h3>
         @s3Uploads.map {
             case S3UploadSuccess(url, fileName, msg) => {
@@ -16,7 +16,7 @@
 
 
             }
-            case S3UploadFailure(fileName, msg) => {
+            case S3UploadFailure(None, fileName, msg) => {
                 <p class="upload failure">
                     @fileName
                 </p>
