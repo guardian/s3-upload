@@ -1,15 +1,36 @@
-@import lib.S3Upload
+@import lib.S3UploadResponse
 @import com.gu.pandomainauth.model.User
-@(user: User, s3Upload: S3Upload)(implicit request: RequestHeader)
+@import lib.S3UploadSuccess
+@import lib.S3UploadFailure
+@(user: User, s3Uploads: Seq[S3UploadResponse])(implicit request: RequestHeader)
 
 @main(user, "File Uploaded") {
-    <div>
-        <h1>Thanks</h1>
-        <p>
-            Here's a <a href="@s3Upload.url">link</a> to your file:
-        </p>
-        <p>
-            @s3Upload.url
-        </p>
+    <div class="results">
+        <h3>Upload Results</h3>
+        @s3Uploads.map {
+            case S3UploadSuccess(url, fileName, msg) => {
+                <p class="upload success">
+                    <a href="@url">@fileName</a> :
+                </p>
+                <p class="success">Successfully Uploaded!</p>
+
+
+            }
+            case S3UploadFailure(None, fileName, msg) => {
+                <p class="upload failure">
+                    @fileName
+                </p>
+                <p class="failure">
+                   Failed To Upload
+                </p>
+                <p>
+                    Reason:
+                    <b>
+                    @msg
+                    </b>
+                </p>
+
+            }
+        }
     </div>
 }

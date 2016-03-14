@@ -9,16 +9,26 @@ import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest, PutObjectResult, AmazonS3Exception}
 import com.gu.pandomainauth.model.User
 
-case class S3Upload(url: URI)
+trait S3UploadResponse {
+  def url: Option[URI]
+  def fileName : Option[String]
+  def msg  : Option[String]
+}
 
-object S3Upload {
-  def build(putObjectRequest: PutObjectRequest) = {
+case class S3UploadSuccess(url: Option[URI], fileName: Option[String], msg: Option[String])
+  extends S3UploadResponse
+
+case class S3UploadFailure(url: Option[URI], fileName: Option[String], msg: Option[String])
+  extends S3UploadResponse
+
+object S3UploadResponse {
+  def buildSuccess(putObjectRequest: PutObjectRequest) = {
     val uri = Config.stage match {
       case "PROD" => s"https://uploads.guim.co.uk/${putObjectRequest.getKey}"
       case _ => s"https://${putObjectRequest.getBucketName}.s3.amazonaws.com/${putObjectRequest.getKey}"
     }
 
-    S3Upload(new URI(uri))
+    S3UploadSuccess(Some(new URI(uri)), Some(putObjectRequest.getKey), None)
   }
 }
 
@@ -27,22 +37,22 @@ object S3Actions {
 
   val s3Client = new AmazonS3Client(Config.awsCredentials)
 
-  def upload(file: File, user: User): Option[S3Upload] = {
+  def upload(file: File, user: User): S3UploadResponse = {
     val key = getS3Key(file)
 
     getObject(key) match {
       case None => {
         val metadata = new ObjectMetadata
         metadata.addUserMetadata("author", user.email)
-        
+
         val request = new PutObjectRequest(Config.bucketName, key, file).withMetadata(metadata)
 
         s3Client.putObject(request) match {
-          case _: PutObjectResult   => Some(S3Upload.build(request))
-          case _                    => None
+          case _: PutObjectResult   => S3UploadResponse.buildSuccess(request)
+          case _                 => S3UploadFailure(None, Some(file.getName), Some("Upload Failed"))
         }
       }
-      case _ => None
+      case _ => S3UploadFailure(None, Some(file.getName), Some("File with that name already exists"))
     }
   }
 

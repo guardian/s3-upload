@@ -31,9 +31,23 @@
     flex-grow: 1;
 }
 
-.page-content {
+.results {
     padding: 30px;
-    margin: 0 auto;
+    margin-left: 10%;
+}
+
+#selectedFiles {
+    padding-top: 3em;
+    font-size: 2em;
+}
+
+#selectedFiles ul li {
+    font-size: 1em;
+    margin-top: 20px;
+}
+
+.not-authed {
+    margin: 0;
 }
 
 .material-icons {
@@ -56,4 +70,16 @@
 .layout .navigation .mdl-navigation__link:hover {
     background-color: #00BCD4;
     color: #37474F;
+}
+
+.success {
+    color: lightgreen;
+}
+
+.success a {
+    color: lightblue;
+}
+
+.failure {
+    color: red;
 }
