@@ -7,10 +7,11 @@ function init() {
 function handleFileSelect(event) {
     if(!event.target.files) return;
     const files = event.target.files;
-    const selected = document.querySelector("#selectedFiles ul");
-    selected.innerHTML = "";
-    for(var i=0; i<files.length; i++) {
-        const file = files[i];
-        selected.innerHTML += "<li>" + file.name + "<br/>" + "</li>";
-    }
+    const selectedList = document.querySelector('#selectedFiles ul');
+
+    Array.from(files).map(function (file) {
+        var li = document.createElement('li');
+        li.appendChild(document.createTextNode(file.name));
+        selectedList.appendChild(li);
+    });
 }
