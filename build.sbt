@@ -2,9 +2,6 @@ name := "s3-uploader"
 version := "1.0"
 scalaVersion := "2.11.6"
 
-lazy val `s3-uploader` = (project in file("."))
-  .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin)
-
 def env(key: String): Option[String] = Option(System.getenv(key))
 
 libraryDependencies ++= Seq(
@@ -17,8 +14,20 @@ unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
-riffRaffPackageType := (packageZipTarball in Universal).value
-riffRaffBuildIdentifier := env("BUILD_NUMBER").getOrElse("DEV")
-riffRaffUploadArtifactBucket := Option("riffraff-artifact")
-riffRaffUploadManifestBucket := Option("riffraff-builds")
-riffRaffManifestVcsUrl := "git@github.com:guardian/s3-upload.git"
+lazy val mainProject = (project in file("."))
+  .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin)
+  .settings(Defaults.coreDefaultSettings: _*)
+  .settings(Defaults.coreDefaultSettings: _*)
+  .settings(
+    packageName in Universal := normalizedName.value,
+    riffRaffPackageName := s"media-service::${name.value}",
+    riffRaffManifestProjectName := riffRaffPackageName.value,
+    riffRaffBuildIdentifier :=  env("BUILD_NUMBER").getOrElse("DEV"),
+    riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
+    riffRaffUploadManifestBucket := Option("riffraff-builds"),
+    riffRaffManifestVcsUrl := "git@github.com:guardian/s3-upload.git",
+    riffRaffManifestBranch := env("GIT_BRANCH").getOrElse("DEV"),
+    riffRaffPackageType := (packageZipTarball in config("universal")).value,
+    riffRaffArtifactResources ++= Seq(
+      riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz"
+    ))

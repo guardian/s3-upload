@@ -165,7 +165,7 @@ Resources:
                 - Fn::Join: ['', ['DOMAINROOT=', {Ref: DomainRoot}]]
                 - Fn::Join: ['', ['BUCKET=', {Ref: Bucket}]]
                 - Fn::Join: ['', ['aws s3 cp s3://media-service-dist/media-service/', {Ref: Stage}, '/s3-uploader/s3-uploader.conf /etc/init']]
-                - Fn::Join: ['', ['aws s3 cp s3://media-service-dist/media-service/', {Ref: Stage}, '/s3-uploader/s3-uploader-1.0.tgz /home/media-service']]
+                - Fn::Join: ['', ['aws s3 cp s3://media-service-dist/media-service/', {Ref: Stage}, '/s3-uploader/s3-uploader.tgz /home/media-service']]
 
             - |
 
@@ -173,8 +173,8 @@ Resources:
               echo "panda.domain=$DOMAINROOT" >> /etc/gu/s3-uploader.properties
               echo "s3.bucket=$BUCKET" >> /etc/gu/s3-uploader.properties
 
-              tar -xzf /home/media-service/s3-uploader-1.0.tgz -C /home/media-service
-              mv /home/media-service/s3-uploader-1.0 /home/media-service/s3-uploader
+              tar -xzf /home/media-service/s3-uploader.tgz -C /home/media-service
+              mv /home/media-service/s3-uploader /home/media-service/s3-uploader
 
               chown -R media-service /home/media-service
 
