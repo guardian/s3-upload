@@ -25,7 +25,7 @@ object S3UploadResponse {
   def buildSuccess(putObjectRequest: PutObjectRequest) = {
     val uri = Config.stage match {
       case "PROD" => s"https://uploads.guim.co.uk/${putObjectRequest.getKey}"
-      case _ => s"https://${putObjectRequest.getBucketName}.s3.amazonaws.com/${putObjectRequest.getKey}"
+      case _ => s"https://s3-eu-west-1.amazonaws.com/${putObjectRequest.getBucketName}/${putObjectRequest.getKey}"
     }
 
     S3UploadSuccess(Some(new URI(uri)), Some(putObjectRequest.getKey), None)
