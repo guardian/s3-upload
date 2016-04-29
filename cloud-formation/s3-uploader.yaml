@@ -140,7 +140,7 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       KeyName: {Ref: KeyName}
-      ImageId: ami-6857e51b
+      ImageId: ami-161b9765
       SecurityGroups:
       - {Ref: InstanceSecurityGroup}
       InstanceType: t2.small
@@ -164,7 +164,7 @@ Resources:
               - - Fn::Join: ['', ['STAGE=', {Ref: Stage}]]
                 - Fn::Join: ['', ['DOMAINROOT=', {Ref: DomainRoot}]]
                 - Fn::Join: ['', ['BUCKET=', {Ref: Bucket}]]
-                - Fn::Join: ['', ['aws s3 cp s3://media-service-dist/media-service/', {Ref: Stage}, '/s3-uploader/s3-uploader.conf /etc/init']]
+                - Fn::Join: ['', ['aws s3 cp s3://media-service-dist/media-service/', {Ref: Stage}, '/s3-uploader/s3-uploader.service /lib/systemd/system']]
                 - Fn::Join: ['', ['aws s3 cp s3://media-service-dist/media-service/', {Ref: Stage}, '/s3-uploader/s3-uploader.tgz /home/media-service']]
 
             - |
@@ -182,4 +182,4 @@ Resources:
             - |
 
               mv /home/media-service/s3-uploader/conf/application.conf_ /home/media-service/s3-uploader/conf/application.conf
-              start s3-uploader
+              systemctl start s3-uploader
