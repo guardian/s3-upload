@@ -17,17 +17,13 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 lazy val mainProject = (project in file("."))
   .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin)
   .settings(Defaults.coreDefaultSettings: _*)
-  .settings(Defaults.coreDefaultSettings: _*)
   .settings(
     packageName in Universal := normalizedName.value,
-    riffRaffPackageName := s"media-service::${name.value}",
-    riffRaffManifestProjectName := riffRaffPackageName.value,
+    riffRaffPackageName := name.value,
+    riffRaffManifestProjectName := s"media-service::${riffRaffPackageName.value}",
     riffRaffBuildIdentifier :=  env("BUILD_NUMBER").getOrElse("DEV"),
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffManifestVcsUrl := "git@github.com:guardian/s3-upload.git",
     riffRaffManifestBranch := env("GIT_BRANCH").getOrElse("DEV"),
-    riffRaffPackageType := (packageZipTarball in config("universal")).value,
-    riffRaffArtifactResources ++= Seq(
-      riffRaffPackageType.value -> s"packages/${name.value}/${name.value}.tgz"
-    ))
+    riffRaffPackageType := (packageZipTarball in Universal).value)
