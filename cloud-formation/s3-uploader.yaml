@@ -174,7 +174,6 @@ Resources:
               echo "s3.bucket=$BUCKET" >> /etc/gu/s3-uploader.properties
 
               tar -xzf /home/media-service/s3-uploader.tgz -C /home/media-service
-              mv /home/media-service/s3-uploader /home/media-service/s3-uploader
 
               chown -R media-service /home/media-service
 
