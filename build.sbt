@@ -14,9 +14,8 @@ unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
-lazy val mainProject = (project in file("."))
+lazy val root = (project in file("."))
   .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin)
-  .settings(Defaults.coreDefaultSettings: _*)
   .settings(
     packageName in Universal := normalizedName.value,
     riffRaffPackageName := name.value,
