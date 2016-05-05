@@ -1,0 +1,8 @@
+[Unit]
+Description=S3 Uploader
+
+[Service]
+User=media-service
+WorkingDirectory=/home/media-service
+ExecStart=/home/media-service/s3-uploader/bin/s3-uploader
+StandardOutput=syslog
