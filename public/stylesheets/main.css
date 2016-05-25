@@ -73,13 +73,23 @@
 }
 
 .success {
-    color: lightgreen;
+    color: green;
 }
 
 .success a {
-    color: lightblue;
+    color: blue;
 }
 
 .failure {
     color: red;
+}
+
+.upload-error p {
+    color: red;
+    display: flex;
+    font-size: 35px;
+}
+
+.upload-error--hidden {
+    display: none;
 }
