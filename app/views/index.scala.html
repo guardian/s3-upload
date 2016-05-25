@@ -6,8 +6,8 @@
     <div class="mdl-grid">
         <div class="mdl-cell mdl-cell--12-col">
             <h1>Choose files to upload</h1>
-            <div class="upload-error hidden" id="png-error">
-                <p>The Grid now accepts PNGs! <a href="https://media.gutools.co.uk/upload">Give it a shot</a></p>
+            <div class="upload-error upload-error--hidden" id="png-error">
+                <p> The Grid now accepts PNGs, give it a try!</p>
             </div>
 
             @helper.form(action = routes.Application.uploadFile, 'enctype -> "multipart/form-data") {

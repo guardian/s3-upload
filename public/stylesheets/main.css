@@ -84,9 +84,12 @@
     color: red;
 }
 
-.upload-error {
+.upload-error p {
     color: red;
     display: flex;
-    font-size: 25px;
+    font-size: 35px;
+}
 
+.upload-error--hidden {
+    display: none;
 }

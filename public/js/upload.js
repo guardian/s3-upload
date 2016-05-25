@@ -14,10 +14,12 @@ function handleFileSelect(event) {
       var file = files[i];
       var ext = file.name.match(/\.(.+)$/)[1];
       if(ext == "png"){
-        newClassName = document.querySelector("#png-error").className.replace("hidden", "");
-        document.querySelector("#png-error").className = newClassName;
+        document.querySelector("#png-error").classList.remove("upload-error--hidden");
       }
-      selected.innerHTML += "<li>" + file.name + "<br/>" + "</li>";
+
+      var li = document.createElement('li')
+      li.appendChild(document.createTextNode(file.name));
+      selected.appendChild(li);
 
     }
 }
