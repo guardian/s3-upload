@@ -9,8 +9,15 @@ function handleFileSelect(event) {
     const files = event.target.files;
     const selected = document.querySelector("#selectedFiles ul");
     selected.innerHTML = "";
+
     for(var i=0; i<files.length; i++) {
-        const file = files[i];
-        selected.innerHTML += "<li>" + file.name + "<br/>" + "</li>";
+      var file = files[i];
+      var ext = file.name.match(/\.(.+)$/)[1];
+      if(ext == "png"){
+        newClassName = document.querySelector("#png-error").className.replace("hidden", "");
+        document.querySelector("#png-error").className = newClassName;
+      }
+      selected.innerHTML += "<li>" + file.name + "<br/>" + "</li>";
+
     }
 }
