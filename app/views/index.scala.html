@@ -5,37 +5,18 @@
 @main(user, "Choose a file to upload") {
     <div class="mdl-grid">
         <div class="mdl-cell mdl-cell--12-col">
-            <h1>Choose files to upload</h1>
-            <div class="upload-error upload-error--hidden" id="png-error">
-                <p> The Grid now accepts PNGs, give it a try!</p>
-            </div>
 
-            @helper.form(action = routes.Application.uploadFile, 'enctype -> "multipart/form-data") {
+            @helper.form(action = routes.Application.uploadFile,
+                'enctype -> "multipart/form-data", 'class -> "file-chooser") {
                 @CSRF.formField
 
-                <input id="fileChooser" type="file" name="files" multiple required hidden>
-
-                <button type="button" class="file-choose-button mdl-button mdl-js-button"
-                        onclick="document.getElementById('fileChooser').click()">
-                    <i class="material-icons">search</i>Browse
-                </button>
-
-                <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">
-                    Upload
-                </button>
-
-                <div id="selectedFiles">
-                    Selected Files:
-                    <ul>
-
-                    </ul>
-
+                <div class="dz-default dz-message">
+                    <h2>Click or drop files here to upload</h2>
                 </div>
             }
 
         </div>
-
     </div>
+    <script src="@routes.Assets.at("js/node_modules/dropzone/dist/min/dropzone.min.js")"></script>
     <script src="@routes.Assets.at("js/upload.js")"></script>
-
 }

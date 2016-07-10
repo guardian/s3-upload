@@ -11,6 +11,7 @@
   "private": true,
   "prefix": "public/js",
   "dependencies": {
+    "dropzone": "^4.3.0",
     "material-design-lite": "^1.0.6"
   }
 }

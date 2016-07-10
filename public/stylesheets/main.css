@@ -93,3 +93,8 @@
 .upload-error--hidden {
     display: none;
 }
+
+.file-chooser.dz-started .dz-message {
+    /* always display message */
+    display: block;
+}
