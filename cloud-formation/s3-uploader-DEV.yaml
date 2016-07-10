@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: S3 Uploader
+Description: S3 Uploader DEV
 Resources:
   Bucket:
     Type: AWS::S3::Bucket
@@ -13,32 +13,12 @@ Resources:
       PolicyDocument:
         Id: BucketPolicy
         Statement:
-        - Action: ['s3:PutObject']
-          Effect: Allow
-          Principal:
-            AWS:
-              Fn::GetAtt: [User, Arn]
-          Resource:
-            Fn::Join: ['', ['arn:aws:s3:::', {Ref: Bucket}, '/*' ]]
         - Action: ['s3:GetObject']
           Effect: Allow
           Principal: '*'
           Resource:
             Fn::Join: ['', ['arn:aws:s3:::', {Ref: Bucket}, '/*' ]]
-  HostKeys:
-    Type: AWS::IAM::AccessKey
-    Properties:
-      UserName:
-        Ref: User
-  User:
-    Type: AWS::IAM::User
 Outputs:
-  AwsId:
-    Value:
-      Ref: HostKeys
-  AwsSecret:
-    Value:
-      Fn::GetAtt: [HostKeys, SecretAccessKey]
   Bucket:
     Value:
       Ref: Bucket
