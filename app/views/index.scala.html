@@ -3,18 +3,37 @@
 @(user: User)(implicit request: RequestHeader)
 
 @main(user, "Choose a file to upload") {
+    <div class="dz-template">
+        <div class="upload-details">
+            <div class="thumbnail">
+                <img class="thumbnail--image" data-dz-thumbnail />
+            </div>
+            <div class="file-info">
+                <h5 data-dz-name></h5>
+                <div data-dz-size></div>
+                <div data-dz-uploadprogress></div>
+                <div data-dz-errormessage class="error-msg"></div>
+            </div>
+            <div class="">
+
+            </div>
+        </div>
+    </div>
+
     <div class="mdl-grid">
         <div class="mdl-cell mdl-cell--12-col">
-
             @helper.form(action = routes.Application.uploadFile,
                 'enctype -> "multipart/form-data", 'class -> "file-chooser") {
                 @CSRF.formField
 
                 <div class="dz-default dz-message">
-                    <h2>Click or drop files here to upload</h2>
+                    <h3>Click or drop files here to upload</h3>
+                </div>
+
+                <div class="dz-default dz-message dz-message--reminder">
+                    <h5>Click or drop more files here to upload</h5>
                 </div>
             }
-
         </div>
     </div>
     <script src="@routes.Assets.at("js/node_modules/dropzone/dist/min/dropzone.min.js")"></script>

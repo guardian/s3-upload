@@ -36,6 +36,10 @@
     margin-left: 10%;
 }
 
+.page-content {
+  padding: 20px;
+}
+
 #selectedFiles {
     padding-top: 3em;
     font-size: 2em;
@@ -44,10 +48,6 @@
 #selectedFiles ul li {
     font-size: 1em;
     margin-top: 20px;
-}
-
-.not-authed {
-    margin: 0;
 }
 
 .material-icons {
@@ -94,7 +94,47 @@
     display: none;
 }
 
-.file-chooser.dz-started .dz-message {
-    /* always display message */
+.file-chooser .dz-message--reminder {
+    display: none;
+}
+
+.file-chooser.dz-started .dz-message--reminder {
     display: block;
+}
+
+.dz-template {
+    display: none;
+}
+
+.upload-details {
+    width: 100%;
+    height: 80px;
+    background-color: #00BCD4;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.thumbnail,
+.file-info {
+    display: inline-block;
+}
+
+.thumbnail {
+    height: 100%;
+    width: 70px;
+    margin-right: 10px;
+    border: 1px solid white;
+}
+
+.dz-image-preview .thumbnail {
+    width: auto;
+}
+
+.thumbnail--image {
+    height: 100%;
+    width: auto;
+}
+
+.error-msg {
+    display: none;
 }

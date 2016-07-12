@@ -14,28 +14,14 @@
     </head>
 
     <body>
-        <div class="layout mdl-layout mdl-color--grey-100 mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+        <div class="layout mdl-layout mdl-color--grey-100 mdl-js-layout mdl-layout--fixed-header">
             <header class="mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
                 <div class="mdl-layout__header-row">
-                    <span class="mdl-layout-title">@title</span>
+                    <span class="mdl-layout-title">S3 Uploader</span>
                     <div class="mdl-layout-spacer"></div>
-                    S3 Uploader
+                    @user.username
                 </div>
             </header>
-            <div class="drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
-                <header class="drawer-header">
-                    <div class="drawer-header-content">
-                        <img src="@user.avatarUrl" class="avatar">
-                        <span>@user.username</span>
-                    </div>
-                </header>
-                <nav class="navigation mdl-navigation mdl-color--blue-grey-800">
-                    <a class="mdl-navigation__link" href="@routes.Application.upload()">
-                        <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">cloud_upload</i>Upload
-                    </a>
-                    <div class="mdl-layout-spacer"></div>
-                </nav>
-            </div>
             <main class="page-content mdl-layout__content mdl-color--grey-100">
                 @content
             </main>
