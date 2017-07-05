@@ -19,7 +19,7 @@ lazy val root = (project in file("."))
   .settings(
     packageName in Universal := normalizedName.value,
     riffRaffPackageName := name.value,
-    riffRaffManifestProjectName := s"media-service::${riffRaffPackageName.value}",
+    riffRaffManifestProjectName := s"media-service::teamcity::${riffRaffPackageName.value}",
     riffRaffBuildIdentifier :=  env("BUILD_NUMBER").getOrElse("DEV"),
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
