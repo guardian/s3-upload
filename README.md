@@ -37,4 +37,4 @@ cd cloud-formation
 ```
 
 ### App
-To deploy the app, deploy the project `media-service::s3-uploader` in riffraff.
+To deploy the app, deploy the project `media-service::teamcity::s3-uploader` in riffraff.
