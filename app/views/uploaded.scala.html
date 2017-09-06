@@ -10,10 +10,10 @@
         @s3Uploads.map {
             case S3UploadSuccess(url, directToS3Url, fileName, msg) => {
                 <p class="upload success">
-                    <a href="@url">Vanity URL</a>
+                    Vanity URL <a href="@url">@url</a>
                 </p>
                 <p class="upload success">
-                    <a href="@directToS3Url">Direct S3 URL - use this when imgix is down</a>
+                    Backup URL (use this when imgix is down) <a href="@directToS3Url">@directToS3Url</a>
                 </p>
                 <p class="success">Successfully Uploaded!</p>
 
