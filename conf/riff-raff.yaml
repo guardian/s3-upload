@@ -1,0 +1,8 @@
+stacks: [media-service]
+regions: [eu-west-1]
+deployments:
+  s3-uploader:
+    parameters:
+      bucket: media-service-dist
+    type: autoscaling
+
