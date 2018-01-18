@@ -15,14 +15,15 @@ unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin)
+  .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin, JDebPackaging)
   .settings(
-    packageName in Universal := normalizedName.value,
-    riffRaffPackageName := name.value,
+    riffRaffPackageName := s"media-service::${name.value}",
     riffRaffManifestProjectName := s"media-service::teamcity::${riffRaffPackageName.value}",
     riffRaffBuildIdentifier :=  env("BUILD_NUMBER").getOrElse("DEV"),
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffManifestVcsUrl := "git@github.com:guardian/s3-upload.git",
     riffRaffManifestBranch := env("GIT_BRANCH").getOrElse("DEV"),
-    riffRaffPackageType := (packageZipTarball in Universal).value)
+    riffRaffPackageType := (packageBin in Debian).value
+  )
+
