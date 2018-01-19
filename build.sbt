@@ -17,7 +17,7 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin, JDebPackaging)
   .settings(
-    riffRaffPackageName := s"media-service::${name.value}",
+    riffRaffPackageName := s"media-service::teamcity::${name.value}",
     riffRaffManifestProjectName := s"${riffRaffPackageName.value}",
     riffRaffBuildIdentifier :=  env("BUILD_NUMBER").getOrElse("DEV"),
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
@@ -26,7 +26,8 @@ lazy val root = (project in file("."))
     riffRaffManifestBranch := env("GIT_BRANCH").getOrElse("DEV"),
     riffRaffPackageType := (packageBin in Debian).value,
     riffRaffArtifactResources := Seq(
-      (packageBin in Debian ).value -> s"${name.value}/${name.value}.deb"
+      (packageBin in Debian ).value -> s"${name.value}/${name.value}.deb",
+      baseDirectory.value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
     )
   )
 
