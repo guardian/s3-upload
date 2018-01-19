@@ -11,7 +11,7 @@ Parameters:
     - CODE
     - PROD
     Default: PROD
-  KeyName: 
+  KeyName:
     Description: 'The EC2 Key Pair to allow SSH access to the instance'
     Type: AWS::EC2::KeyPair::KeyName
     Default: 'digital-cms-team'
@@ -21,7 +21,9 @@ Parameters:
   PlayApplicationSecret:
     Description: application.secret for Play configuration
     Type: String
-    NoEcho: true
+  AMI:
+    Description: AMI id from Amigo with tag editorial-tools-xenial-java8
+    Type: String
 Mappings:
   BucketName:
     Stage:
@@ -140,7 +142,7 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       KeyName: {Ref: KeyName}
-      ImageId: ami-161b9765
+      ImageId: !Ref 'AMI'
       SecurityGroups:
       - {Ref: InstanceSecurityGroup}
       InstanceType: t2.small
