@@ -24,6 +24,9 @@ lazy val root = (project in file("."))
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffManifestVcsUrl := "git@github.com:guardian/s3-upload.git",
     riffRaffManifestBranch := env("GIT_BRANCH").getOrElse("DEV"),
-    riffRaffPackageType := (packageBin in Debian).value
+    riffRaffPackageType := (packageBin in Debian).value,
+    riffRaffArtifactResources := Seq(
+      (packageBin in Debian ).value -> s"${name.value}/${name.value}.deb"
+    )
   )
 
