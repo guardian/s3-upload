@@ -18,7 +18,7 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin, JDebPackaging)
   .settings(
     riffRaffPackageName := s"media-service::${name.value}",
-    riffRaffManifestProjectName := s"media-service::teamcity::${riffRaffPackageName.value}",
+    riffRaffManifestProjectName := s"${riffRaffPackageName.value}",
     riffRaffBuildIdentifier :=  env("BUILD_NUMBER").getOrElse("DEV"),
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
