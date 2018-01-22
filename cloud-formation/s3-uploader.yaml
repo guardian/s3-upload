@@ -11,6 +11,14 @@ Parameters:
     - CODE
     - PROD
     Default: PROD
+  Stack:
+    Description: Stack name
+    Type: String
+    Default: media-service
+  App:
+    Description: App name
+    Type: String
+    Default: s3-uploader
   KeyName:
     Description: 'The EC2 Key Pair to allow SSH access to the instance'
     Type: AWS::EC2::KeyPair::KeyName
@@ -122,8 +130,8 @@ Resources:
         Interval: 10
         Timeout: 5
       Tags:
-      - { Key: App, Value: s3-uploader }
-      - { Key: Stack, Value: media-service }
+      - { Key: App, Value: {Ref: App} }
+      - { Key: Stack, Value: {Ref: Stack} }
       - { Key: Stage, Value: {Ref: Stage} }
 
   ASG:
@@ -140,10 +148,9 @@ Resources:
       MinSize: 1
       DesiredCapacity: 1
       Tags:
-      - { Key: App, Value: s3-uploader, PropagateAtLaunch: true }
-      - { Key: Stack, Value: media-service, PropagateAtLaunch: true }
+      - { Key: App, Value: {Ref: App},  PropagateAtLaunch: true }
+      - { Key: Stack, Value: {Ref: Stack}, PropagateAtLaunch: true }
       - { Key: Stage, Value: {Ref: Stage}, PropagateAtLaunch: true }
-
 
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
