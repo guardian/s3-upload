@@ -35,6 +35,11 @@ lazy val root = (project in file("."))
     debianPackageDependencies := Seq("openjdk-8-jre-headless"),
     maintainer := "Editorial Tools <digitalcms.dev@guardian.co.uk>",
     packageSummary := "S3 Uploader",
-    packageDescription := """Allow uploading images to S3"""
+    packageDescription := """Allow uploading images to S3""",
+
+    javaOptions in Universal ++= Seq(
+      "-Dpidfile.path=/dev/null"
+    )
   )
+
 
