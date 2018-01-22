@@ -14,6 +14,9 @@ unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
+import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
+serverLoading in Debian := Systemd
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin, JDebPackaging)
   .settings(
