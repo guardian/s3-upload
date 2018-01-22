@@ -18,7 +18,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
 serverLoading in Debian := Systemd
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin, JDebPackaging)
+  .enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)
   .settings(
     riffRaffPackageName := s"media-service::teamcity::${name.value}",
     riffRaffManifestProjectName := s"${riffRaffPackageName.value}",
