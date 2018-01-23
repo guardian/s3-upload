@@ -154,6 +154,56 @@ Resources:
 
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName:
+            Ref: Role
+          buckets:
+            - media-service-dist
+      AWS::CloudFormation::Init:
+        config:
+          users:
+            s3-uploader:
+              homeDir: "/home/s3-uploader"
+          files:
+            "/home/media-service/s3-uploader.deb":
+              source:
+                Fn::Join:
+                  - ""
+                  -
+                    - "https://s3-eu-west-1.amazonaws.com/media-service-dist/media-service/"
+                    - Ref: "Stage"
+                    - "/s3-uploader/s3-uploader.deb"
+            "/home/media-service/s3-uploader/conf/application.conf":
+              source:
+                Fn::Join:
+                  - ""
+                  -
+                    - "https://s3-eu-west-1.amazonaws.com/"
+                    - Ref: "ConfigBucket"
+                    - "/"
+                    - Ref: "Stage"
+                    - "/application.conf"
+              owner: s3-uploader
+              authentication: S3AccessCreds
+          commands:
+            command1:
+              command: "mkdir /etc/gu"
+            command2:
+              command: "echo \"$STAGE\" > /etc/gu/stage"
+              env:
+                STAGE: {Ref: Stage}
+            command3:
+              command: "echo \"panda.domain=$DOMAINROOT\" >> /etc/gu/s3-uploader.properties"
+              env:
+                DOMAINROOT:  {Ref: DomainRoot}
+            command4:
+              command: "echo \"s3.bucket=$BUCKET\" >> /etc/gu/s3-uploader.properties"
+              env:
+                BUCKET: {Ref: Bucket}
+
     Properties:
       KeyName: {Ref: KeyName}
       ImageId: !Ref 'AMI'
@@ -167,29 +217,14 @@ Resources:
           - ''
           - - |
               #!/bin/bash -ev
-              adduser --system --home /home/media-service --disabled-password media-service
-              mkdir /home/media-service/logs
-              mkdir /etc/gu
 
             - Fn::Join:
-              - '
-
-                '
-              - - Fn::Join: ['', ['STAGE=', {Ref: Stage}]]
-                - Fn::Join: ['', ['DOMAINROOT=', {Ref: DomainRoot}]]
-                - Fn::Join: ['', ['BUCKET=', {Ref: Bucket}]]
-                - Fn::Join: ['', ['aws s3 cp s3://media-service-dist/media-service/', {Ref: Stage}, '/s3-uploader/s3-uploader.deb /home/media-service']]
-
+              - " "
+              - - cfn-init -s
+                - Ref: AWS::StackId
+                - " -r LaunchConfig "
+                - "  --region "
+                - Ref: AWS::Region
+                - " || error_exit 'Failed to run cfn-init'\n"
             - |
-
-              echo $STAGE > /etc/gu/stage
-              echo "panda.domain=$DOMAINROOT" >> /etc/gu/s3-uploader.properties
-              echo "s3.bucket=$BUCKET" >> /etc/gu/s3-uploader.properties
-
-              chown -R media-service /home/media-service
-
-            - Fn::Join: ['', ['aws s3 cp s3://', {Ref: ConfigBucket}, '/', {Ref: Stage}, '/application.conf /home/media-service/s3-uploader/conf/application.conf']]
-
-            - |
-
               dpkg -i /home/media-service/s3-uploader.deb
