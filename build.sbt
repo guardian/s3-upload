@@ -14,15 +14,32 @@ unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
+import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
+serverLoading in Debian := Systemd
+
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, JavaAppPackaging, RiffRaffArtifact, UniversalPlugin)
+  .enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)
   .settings(
-    packageName in Universal := normalizedName.value,
-    riffRaffPackageName := name.value,
-    riffRaffManifestProjectName := s"media-service::teamcity::${riffRaffPackageName.value}",
+    riffRaffPackageName := s"media-service::teamcity::${name.value}",
+    riffRaffManifestProjectName := s"${riffRaffPackageName.value}",
     riffRaffBuildIdentifier :=  env("BUILD_NUMBER").getOrElse("DEV"),
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
     riffRaffManifestVcsUrl := "git@github.com:guardian/s3-upload.git",
     riffRaffManifestBranch := env("GIT_BRANCH").getOrElse("DEV"),
-    riffRaffPackageType := (packageZipTarball in Universal).value)
+    riffRaffPackageType := (packageBin in Debian).value,
+    riffRaffArtifactResources := Seq(
+      (packageBin in Debian ).value -> s"${name.value}/${name.value}.deb",
+      baseDirectory.value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
+    ),
+    debianPackageDependencies := Seq("openjdk-8-jre-headless"),
+    maintainer := "Editorial Tools <digitalcms.dev@guardian.co.uk>",
+    packageSummary := "S3 Uploader",
+    packageDescription := """Allow uploading images to S3""",
+
+    javaOptions in Universal ++= Seq(
+      "-Dpidfile.path=/dev/null"
+    )
+  )
+
+
