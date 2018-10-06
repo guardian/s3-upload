@@ -1,13 +1,13 @@
 name := "s3-uploader"
 version := "1.0"
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.8"
 
 def env(key: String): Option[String] = Option(System.getenv(key))
 
 libraryDependencies ++= Seq(
   cache, ws, filters,
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.10.44",
-  "com.gu" %% "pan-domain-auth-verification" % "0.2.10"
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.423",
+  "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.5.1"
 )
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )

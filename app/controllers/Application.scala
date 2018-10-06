@@ -1,23 +1,25 @@
 package controllers
 
 import java.io.File
+
+import com.gu.pandomainauth.action.AuthActions
 import lib._
 import play.api.mvc._
 
-object Application extends Controller {
-  def index = PanAuthentication { request => {
+object Application extends Controller with PanAuth {
+  def index = AuthAction { request => {
       Ok(views.html.index(request.user)(request))
     }
   }
 
-  def upload = PanAuthentication { request => {
+  def upload = AuthAction { request => {
       Redirect(routes.Application.index())
     }
   }
 
   private def bytesToMb (bytes: Long): Long = bytes / 1024 / 1024
 
-  def uploadFile = PanAuthentication (parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)) { request =>
+  def uploadFile = AuthAction (parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)) { request =>
     request.body match {
       case Left(MaxSizeExceeded(limit)) => {
         EntityTooLarge(views.html.tooLarge(request.user, bytesToMb(limit)))
