@@ -7,7 +7,8 @@ def env(key: String): Option[String] = Option(System.getenv(key))
 libraryDependencies ++= Seq(
   cache, ws, filters,
   "com.amazonaws" % "aws-java-sdk-s3" % "1.11.423",
-  "com.gu" %% "pan-domain-auth-verification" % "0.7.1"
+  "com.gu" %% "pan-domain-auth-verification" % "0.7.1",
+  "org.bouncycastle" % "bcprov-jdk15on" % "1.60"
 )
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
