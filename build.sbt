@@ -7,7 +7,7 @@ def env(key: String): Option[String] = Option(System.getenv(key))
 libraryDependencies ++= Seq(
   cache, ws, filters,
   "com.amazonaws" % "aws-java-sdk-s3" % "1.11.423",
-  "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.5.1"
+  "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.5.1" excludeAll(ExclusionRule("com.typesafe.akka"))
 )
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
