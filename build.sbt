@@ -6,7 +6,7 @@ def env(key: String): Option[String] = Option(System.getenv(key))
 
 libraryDependencies ++= Seq(
   cache, ws, filters,
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.10.44",
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.423",
   "com.gu" %% "pan-domain-auth-verification" % "0.2.10"
 )
 
