@@ -1,19 +1,19 @@
 package lib
 
 
-import com.gu.pandomainauth.{PublicSettings, PanDomain}
+import com.gu.pandomainauth.{PanDomain, PublicKey, PublicSettings}
 import com.gu.pandomainauth.model.{Authenticated, Expired, User}
-import com.ning.http.client.AsyncHttpClient
 import controllers.Application._
-import dispatch.Http
+import okhttp3.OkHttpClient
 import play.api.mvc.Security.AuthenticatedRequest
 import play.api.mvc.{ActionBuilder, Request, Result}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object PanAuthenticationSettings {
-  implicit val httpClient = Http(new AsyncHttpClient())
+  implicit val httpClient = new OkHttpClient()
 
   val publicSettings = new PublicSettings(Config.domain, {
     case Success(settings) =>
@@ -31,7 +31,7 @@ object PanAuthentication extends ActionBuilder[({ type R[A] = AuthenticatedReque
       case Some(key) => {
         request.cookies.get(PanAuthenticationSettings.publicSettings.assymCookieName) match {
           case Some(cookie) => {
-            PanDomain.authStatus(cookie.value, key) match {
+            PanDomain.authStatus(cookie.value, PublicKey(key)) match {
               case user: Authenticated => {
                 block(new AuthenticatedRequest(user.authedUser.user, request))
               }
