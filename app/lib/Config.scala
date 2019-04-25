@@ -12,7 +12,10 @@ import scala.util.Try
 object Config {
   val properties: Map[String, String] = Try(Properties.fromPath("/etc/gu/s3-uploader.properties")).getOrElse(Map.empty)
 
-  val awsCredentials = new AWSCredentialsProviderChain(new DefaultAWSCredentialsProviderChain(), new ProfileCredentialsProvider("media-service"))
+  val awsCredentials = new AWSCredentialsProviderChain(
+    new ProfileCredentialsProvider("media-service"),
+    new DefaultAWSCredentialsProviderChain()
+  )
 
   val region = properties.getOrElse("aws.region", "eu-west-1")
 
