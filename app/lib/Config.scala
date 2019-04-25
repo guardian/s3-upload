@@ -4,7 +4,7 @@ import java.io.FileNotFoundException
 import java.net.URI
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain}
+import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 
 import scala.io.Source
 import scala.util.Try
@@ -14,7 +14,7 @@ object Config {
 
   val awsCredentials = new AWSCredentialsProviderChain(
     new ProfileCredentialsProvider("media-service"),
-    new DefaultAWSCredentialsProviderChain()
+    InstanceProfileCredentialsProvider.getInstance()
   )
 
   val region = properties.getOrElse("aws.region", "eu-west-1")
