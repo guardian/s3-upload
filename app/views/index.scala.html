@@ -10,7 +10,7 @@
                 <p> The Grid now accepts PNGs, give it a try!</p>
             </div>
 
-            @helper.form(action = routes.Application.uploadFile, 'enctype -> "multipart/form-data") {
+            @helper.form(action = routes.Api.uploadFile, 'enctype -> "multipart/form-data") {
                 @CSRF.formField
 
                 <input id="fileChooser" type="file" name="files" multiple required hidden>

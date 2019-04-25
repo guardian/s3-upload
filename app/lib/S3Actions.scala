@@ -5,8 +5,8 @@ import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest, PutObjectResult, AmazonS3Exception}
+import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.amazonaws.services.s3.model.{AmazonS3Exception, ObjectMetadata, PutObjectRequest, PutObjectResult}
 import com.gu.pandomainauth.model.User
 
 trait S3UploadResponse {
@@ -38,7 +38,7 @@ object S3UploadResponse {
 object S3Actions {
   private val s3NotFoundStatusList = List(403, 404)
 
-  val s3Client = new AmazonS3Client(Config.awsCredentials)
+  val s3Client = AmazonS3ClientBuilder.standard().withRegion(Config.region).withCredentials(Config.awsCredentials).build()
 
   def upload(file: File, user: User): S3UploadResponse = {
     val key = getS3Key(file)
