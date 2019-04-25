@@ -7,11 +7,10 @@ npm install
 popd
 
 pushd ..
-java -Xmx1024m \
-    -XX:MaxPermSize=256m \
-    -XX:ReservedCodeCacheSize=128m \
-    -XX:+CMSClassUnloadingEnabled \
-    -Dsbt.log.noformat=true \
-    -jar sbt-launch.jar \
-    clean compile riffRaffUpload
+sbt -J-Xmx1024m \
+    -J-XX:MaxPermSize=256m \
+    -J-XX:ReservedCodeCacheSize=128m \
+    -J-XX:+CMSClassUnloadingEnabled \
+    -J-Dsbt.log.noformat=true \
+    clean riffRaffUpload
 popd
