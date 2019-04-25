@@ -1,6 +1,5 @@
 package controllers
 
-import java.io.File
 import java.nio.file.{Files, Paths}
 
 import akka.stream.Materializer
@@ -8,7 +7,8 @@ import com.gu.pandomainauth.PublicSettings
 import lib._
 import play.api.mvc.{ControllerComponents, MaxSizeExceeded}
 
-class Api(override val publicSettings: PublicSettings, override val controllerComponents: ControllerComponents)(implicit mat: Materializer) extends PandaController {
+class Api(s3Actions: S3Actions, override val publicSettings: PublicSettings,
+          override val controllerComponents: ControllerComponents)(implicit mat: Materializer) extends PandaController {
   def index = AuthAction { request => {
       Ok(views.html.index(request.user)(request))
     }
@@ -32,7 +32,7 @@ class Api(override val publicSettings: PublicSettings, override val controllerCo
           val temporaryFilePath = Paths.get(s"/tmp/${f.filename}")
           f.ref.moveFileTo(temporaryFilePath, replace = true)
 
-          val res = S3Actions.upload(temporaryFilePath.toFile, request.user)
+          val res = s3Actions.upload(temporaryFilePath.toFile, request.user)
           Files.delete(temporaryFilePath)
           res
         }
