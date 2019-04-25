@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 pushd ../public/js
 rm -rf node_modules
