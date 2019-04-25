@@ -1,3 +1,5 @@
+import PlayKeys._
+
 name := "s3-uploader"
 version := "1.0"
 scalaVersion := "2.12.8"
@@ -19,6 +21,8 @@ libraryDependencies ++= Seq(
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin)
   .settings(
+    playDefaultPort := 9050,
+
     riffRaffPackageName := s"media-service::teamcity::${name.value}",
     riffRaffManifestProjectName := s"${riffRaffPackageName.value}",
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
