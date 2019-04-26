@@ -7,15 +7,15 @@ import com.gu.pandomainauth.PublicSettings
 import lib._
 import play.api.mvc.{ControllerComponents, MaxSizeExceeded}
 
-class Api(s3Actions: S3Actions, override val publicSettings: PublicSettings,
-          override val controllerComponents: ControllerComponents)(implicit mat: Materializer) extends PandaController {
+class Application(s3Actions: S3Actions, override val publicSettings: PublicSettings,
+                  override val controllerComponents: ControllerComponents)(implicit mat: Materializer) extends PandaController {
   def index = AuthAction { request => {
       Ok(views.html.index(request.user)(request))
     }
   }
 
   def upload = AuthAction { request => {
-      Redirect(routes.Api.index())
+      Redirect(routes.Application.index())
     }
   }
 

@@ -1,6 +1,6 @@
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.pandomainauth.PublicSettings
-import controllers.{Api, AssetsComponents, Management}
+import controllers.{Application, AssetsComponents, Management}
 import lib.{Config, S3Actions}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
@@ -17,7 +17,7 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
 
   publicSettings.start()
 
-  val api = new Api(s3Actions, publicSettings, controllerComponents)
+  val api = new Application(s3Actions, publicSettings, controllerComponents)
   val management = new Management(controllerComponents)
 
   val disabledFilters: Set[EssentialFilter] = Set(allowedHostsFilter)
