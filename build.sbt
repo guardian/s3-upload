@@ -1,33 +1,32 @@
+import PlayKeys._
+
 name := "s3-uploader"
 version := "1.0"
-scalaVersion := "2.11.6"
+scalaVersion := "2.12.8"
 
-def env(key: String): Option[String] = Option(System.getenv(key))
-
-libraryDependencies ++= Seq(
-  cache, ws, filters,
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.423",
-  "com.gu" %% "pan-domain-auth-verification" % "0.7.1",
-  "org.bouncycastle" % "bcprov-jdk15on" % "1.60"
+scalacOptions := Seq(
+  "-unchecked",
+  "-deprecation",
+  "-feature",
+  "-Xfatal-warnings",
+  "-Ypartial-unification"
 )
 
-unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
-
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
-
-import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
-serverLoading in Debian := Systemd
+libraryDependencies ++= Seq(
+  ws, filters,
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.539",
+  "com.gu" %% "pan-domain-auth-verification" % "0.8.2"
+)
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)
+  .enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin)
   .settings(
+    playDefaultPort := 9050,
+
     riffRaffPackageName := s"media-service::teamcity::${name.value}",
     riffRaffManifestProjectName := s"${riffRaffPackageName.value}",
-    riffRaffBuildIdentifier :=  env("BUILD_NUMBER").getOrElse("DEV"),
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
-    riffRaffManifestVcsUrl := "git@github.com:guardian/s3-upload.git",
-    riffRaffManifestBranch := env("GIT_BRANCH").getOrElse("DEV"),
     riffRaffPackageType := (packageBin in Debian).value,
     riffRaffArtifactResources := Seq(
       (packageBin in Debian ).value -> s"${name.value}/${name.value}.deb",

@@ -1,49 +1,60 @@
 package lib
 
 
+import com.gu.pandomainauth.model.{Authenticated, AuthenticatedUser, AuthenticationStatus, User}
 import com.gu.pandomainauth.{PanDomain, PublicKey, PublicSettings}
-import com.gu.pandomainauth.model.{Authenticated, Expired, User}
-import controllers.Application._
-import okhttp3.OkHttpClient
-import play.api.mvc.Security.AuthenticatedRequest
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.Logging
+import play.api.mvc._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future}
 
-object PanAuthenticationSettings {
-  implicit val httpClient = new OkHttpClient()
+class UserRequest[A](val user: User, request: Request[A]) extends WrappedRequest[A](request)
 
-  val publicSettings = new PublicSettings(Config.domain, {
-    case Success(settings) =>
-      println("successfully updated pan-domain public settings")
-    case Failure(err) =>
-      println("failed to update pan-domain public settings", err)
-  })
+trait PandaController extends BaseControllerHelpers with Logging {
+  def publicSettings: PublicSettings
 
-  def publicKey: Option[String] = publicSettings.publicKey
-}
+  def unauthorisedResponse[A](request: Request[A]) = {
+    Future.successful(Unauthorized(views.html.login(Config.loginUri)(request)))
+  }
 
-object PanAuthentication extends ActionBuilder[({ type R[A] = AuthenticatedRequest[A, User] })#R] {
-  override def invokeBlock[A](request: Request[A], block: (AuthenticatedRequest[A, User]) => Future[Result]): Future[Result] = {
-    PanAuthenticationSettings.publicKey match {
-      case Some(key) => {
-        request.cookies.get(PanAuthenticationSettings.publicSettings.assymCookieName) match {
-          case Some(cookie) => {
-            PanDomain.authStatus(cookie.value, PublicKey(key)) match {
-              case user: Authenticated => {
-                block(new AuthenticatedRequest(user.authedUser.user, request))
+  def authStatus(cookie: Cookie, publicKey: PublicKey): AuthenticationStatus = {
+    PanDomain.authStatus(
+      cookie.value,
+      publicKey,
+      PanDomain.guardianValidation,
+      apiGracePeriod = 0,
+      system = "s3-upload",
+      cacheValidation = false
+    )
+  }
+
+  object AuthAction extends ActionBuilder[UserRequest, AnyContent] {
+    override def parser: BodyParser[AnyContent] = PandaController.this.controllerComponents.parsers.default
+    override protected def executionContext: ExecutionContext = PandaController.this.controllerComponents.executionContext
+
+    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
+      publicSettings.publicKey match {
+        case Some(pk) =>
+          request.cookies.get("gutoolsAuth-assym") match {
+            case Some(cookie) =>
+              authStatus(cookie, pk) match {
+                case Authenticated(AuthenticatedUser(user, _, _, _, _)) =>
+                  block(new UserRequest(user, request))
+
+                case other =>
+                  logger.info(s"Login response $other")
+                  unauthorisedResponse(request)
               }
-              case _: Expired => Future(Unauthorized(views.html.login(Config.loginUri)(request)))
 
-              case _ => Future(Unauthorized(views.html.login(Config.loginUri)(request)))
-            }
+            case None =>
+              logger.warn("Panda cookie missing")
+              unauthorisedResponse(request)
           }
-          case _ => Future(Unauthorized(views.html.login(Config.loginUri)(request)))
-        }
+
+        case None =>
+          logger.error("Panda public key unavailable")
+          unauthorisedResponse(request)
       }
-      case _ => Future(Unauthorized(views.html.login(Config.loginUri)(request)))
     }
   }
 }

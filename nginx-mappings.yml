@@ -1,4 +1,4 @@
 name: s3-uploader
 mappings:
   - prefix: s3-uploader
-    port: 9000
+    port: 9050
