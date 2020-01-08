@@ -33,8 +33,12 @@ trait PandaController extends BaseControllerHelpers with Logging {
     override protected def executionContext: ExecutionContext = PandaController.this.controllerComponents.executionContext
 
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
+
       publicSettings.publicKey match {
         case Some(pk) =>
+
+
+          println("in auth action, request.cookies", request.cookies)
           request.cookies.get("gutoolsAuth-assym") match {
             case Some(cookie) =>
               authStatus(cookie, pk) match {
