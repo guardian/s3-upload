@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
-import com.amazonaws.services.s3.model.{AmazonS3Exception, ObjectMetadata, PutObjectRequest, PutObjectResult}
+import com.amazonaws.services.s3.model._
 import com.gu.pandomainauth.model.User
 
 trait S3UploadResponse {
@@ -35,44 +35,44 @@ object S3UploadResponse {
   }
 }
 
-class S3Actions(s3Client: AmazonS3) {
+class S3Actions() {
   private val s3NotFoundStatusList = List(403, 404)
 
-  def upload(file: File, user: User): S3UploadResponse = {
-    val key = getS3Key(file)
+  def upload(file: File, user: User, bucketName: String, s3Client: AmazonS3, key: String, setPublicAcl: Boolean): S3UploadResponse = {
 
-    getObject(key) match {
+    getObject(key, bucketName, s3Client) match {
       case None => {
         val metadata = new ObjectMetadata
         metadata.addUserMetadata("author", user.email)
+        if(setPublicAcl) { metadata.setContentType("text/html") }
 
-        val request = new PutObjectRequest(Config.bucketName, key, file).withMetadata(metadata)
+        val request = new PutObjectRequest(bucketName, key, file).withMetadata(metadata)
 
-        s3Client.putObject(request) match {
-          case _: PutObjectResult   => S3UploadResponse.buildSuccess(request)
-          case _                 => S3UploadFailure(None, None, Some(file.getName), Some("Upload Failed"))
+        val finalRequest = if(setPublicAcl) {
+          request.withCannedAcl(CannedAccessControlList.PublicRead)
+        } else { request }
+
+        s3Client.putObject(finalRequest) match {
+          case _: PutObjectResult => S3UploadResponse.buildSuccess(finalRequest)
+          case _ => S3UploadFailure(None, None, Some(file.getName), Some("Upload Failed"))
         }
+
       }
       case _ => S3UploadFailure(None, None, Some(file.getName), Some("File with that name already exists"))
     }
   }
 
-  def getObject (key: String) = {
+  def getObject(key: String, bucketName: String, s3Client: AmazonS3) = {
+
     try {
-      s3Client.getObject(Config.bucketName, key)
+      s3Client.getObject(bucketName, key)
     } catch {
       case e: AmazonS3Exception if s3NotFoundStatusList.contains(e.getStatusCode) => None
     }
   }
 
-  private def getCurrentDate = {
-    val now = Calendar.getInstance().getTime
-    val dateFormat = new SimpleDateFormat("yyyy/MM/dd")
-    dateFormat.format(now)
-  }
 
-  private def getS3Key (file: File) = {
-    s"$getCurrentDate/${file.getName.replace(' ', '_')}"
-  }
+
+
 }
 

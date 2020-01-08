@@ -1,6 +1,9 @@
 package controllers
 
+import java.io.File
 import java.nio.file.{Files, Paths}
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 import akka.stream.Materializer
 import com.gu.pandomainauth.PublicSettings
@@ -19,11 +22,8 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
     }
   }
 
-  private def bytesToMb (bytes: Long): Long = bytes / 1024 / 1024
+  def uploadChart = AuthAction (parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)) { request =>
 
-  def uploadFile = AuthAction (parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)) { request =>
-
-    println("=====>", request)
     request.body match {
       case Left(MaxSizeExceeded(limit)) => {
         EntityTooLarge(views.html.tooLarge(request.user, bytesToMb(limit)))
@@ -34,7 +34,46 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
           val temporaryFilePath = Paths.get(s"/tmp/${f.filename}")
           f.ref.moveFileTo(temporaryFilePath, replace = true)
 
-          val res = s3Actions.upload(temporaryFilePath.toFile, request.user)
+          val res = s3Actions.upload(temporaryFilePath.toFile, request.user, Config.interactivesBucketName, Config.s3ClientUS, getChartKey(), setPublicAcl = true)
+          Files.delete(temporaryFilePath)
+          res
+        }
+
+        Ok(views.html.uploaded(request.user, uploads)(request))
+      }
+    }
+  }
+
+  private def getS3Key(file: File) = {
+    s"$getCurrentDate/${file.getName.replace(' ', '_')}"
+  }
+
+  private def getChartKey() = {
+    "charts/embed/test5.html"
+  }
+
+  private def getCurrentDate = {
+    val now = Calendar.getInstance().getTime
+    val dateFormat = new SimpleDateFormat("yyyy/MM/dd")
+    dateFormat.format(now)
+  }
+
+
+  private def bytesToMb (bytes: Long): Long = bytes / 1024 / 1024
+
+  def uploadFile = AuthAction (parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)) { request =>
+
+    request.body match {
+      case Left(MaxSizeExceeded(limit)) => {
+        EntityTooLarge(views.html.tooLarge(request.user, bytesToMb(limit)))
+      }
+
+      case Right(multipartForm) => {
+        val uploads : Seq[S3UploadResponse] = multipartForm.files.map { f =>
+          val temporaryFilePath = Paths.get(s"/tmp/${f.filename}")
+          f.ref.moveFileTo(temporaryFilePath, replace = true)
+
+          val res = s3Actions.upload(temporaryFilePath.toFile, request.user, Config.bucketName, Config.s3Client, getS3Key(temporaryFilePath.toFile), setPublicAcl = false)
           Files.delete(temporaryFilePath)
           res
         }

@@ -37,8 +37,6 @@ trait PandaController extends BaseControllerHelpers with Logging {
       publicSettings.publicKey match {
         case Some(pk) =>
 
-
-          println("in auth action, request.cookies", request.cookies)
           request.cookies.get("gutoolsAuth-assym") match {
             case Some(cookie) =>
               authStatus(cookie, pk) match {
