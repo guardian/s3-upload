@@ -2,12 +2,12 @@ package lib
 
 import java.io.File
 import java.net.URI
-import java.text.SimpleDateFormat
-import java.util.Calendar
 
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
+import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model._
 import com.gu.pandomainauth.model.User
+import play.api.libs.json.{JsPath, JsString, JsValue, Writes}
+import play.api.libs.functional.syntax._
 
 trait S3UploadResponse {
   def url: Option[URI]
@@ -33,6 +33,17 @@ object S3UploadResponse {
     
     S3UploadSuccess(Some(new URI(uri)), Some(new URI(directToS3Uri)), Some(putObjectRequest.getKey), None)
   }
+
+  implicit val writesUri: Writes[URI] = (uri: URI) => JsString(uri.toString)
+
+  implicit val s3UploadSuccessWrites: Writes[S3UploadSuccess] = (
+    (JsPath \ "url").writeNullable[URI] and
+    (JsPath \ "directToS3Url").writeNullable[URI] and
+    (JsPath \ "fileName").writeNullable[String] and
+    (JsPath \ "msg").writeNullable[String]
+  )(unlift(S3UploadSuccess.unapply))
+
+  implicit val s3UploadFailureWrites: Writes[S3UploadFailure] = (failure: S3UploadFailure) => JsString(failure.msg.getOrElse("Something went wrong"))
 }
 
 class S3Actions() {

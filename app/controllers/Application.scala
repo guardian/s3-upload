@@ -39,18 +39,10 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
           Files.delete(temporaryFilePath)
           res
         }
-        
 
         uploads.head match {
-          case e: S3UploadFailure => InternalServerError(e.msg.getOrElse("Upload failed!"))
-          case s: S3UploadSuccess => {
-            val successJson = Json.parse(
-              s"""
-              { "s3url" : "${s.directToS3Url.get.toString}",
-                "url" : "${s.url.get.toString}" }
-              """)
-            Ok( successJson )
-          }
+          case failure: S3UploadFailure => InternalServerError(Json.toJson(failure))
+          case success: S3UploadSuccess => Ok(Json.toJson(success))
         }
       }
     }
@@ -61,7 +53,9 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
   }
 
   private def getChartKey() = {
-    "charts/embed/test8.html"
+    val now = Calendar.getInstance().getTime
+    val dateFormat = new SimpleDateFormat("MMM/yyyy-MM-dd-hh:mm:ss")
+    s"${dateFormat.format(now).toLowerCase}/embed.html"
   }
 
   private def getCurrentDate = {
@@ -69,7 +63,6 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
     val dateFormat = new SimpleDateFormat("yyyy/MM/dd")
     dateFormat.format(now)
   }
-
 
   private def bytesToMb (bytes: Long): Long = bytes / 1024 / 1024
 
