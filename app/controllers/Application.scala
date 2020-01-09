@@ -9,6 +9,7 @@ import akka.stream.Materializer
 import com.gu.pandomainauth.PublicSettings
 import lib._
 import play.api.mvc.{ControllerComponents, MaxSizeExceeded}
+import play.api.libs.json._
 
 class Application(s3Actions: S3Actions, override val publicSettings: PublicSettings,
                   override val controllerComponents: ControllerComponents)(implicit mat: Materializer) extends PandaController {
@@ -38,8 +39,19 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
           Files.delete(temporaryFilePath)
           res
         }
+        
 
-        Ok(views.html.uploaded(request.user, uploads)(request))
+        uploads.head match {
+          case e: S3UploadFailure => InternalServerError(e.msg.getOrElse("Upload failed!"))
+          case s: S3UploadSuccess => {
+            val successJson = Json.parse(
+              s"""
+              { "s3url" : "${s.directToS3Url.get.toString}",
+                "url" : "${s.url.get.toString}" }
+              """)
+            Ok( successJson )
+          }
+        }
       }
     }
   }
@@ -49,7 +61,7 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
   }
 
   private def getChartKey() = {
-    "charts/embed/test5.html"
+    "charts/embed/test8.html"
   }
 
   private def getCurrentDate = {
