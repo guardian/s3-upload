@@ -23,11 +23,11 @@ case class S3UploadFailure(url: Option[URI], directToS3Url: Option[URI], fileNam
   extends S3UploadResponse
 
 object S3UploadResponse {
-  def buildSuccess(putObjectRequest: PutObjectRequest) = {
+  def buildSuccess(putObjectRequest: PutObjectRequest, config: Config) = {
     val directToS3Uri = s"https://s3-eu-west-1.amazonaws.com/${putObjectRequest.getBucketName}/${putObjectRequest.getKey}"
 
-    val uri = Config.stage match {
-      case "PROD" => s"https://uploads.guim.co.uk/${putObjectRequest.getKey}"
+    val uri = config.stage match {
+      case "PROD" => s"${config.prettyUrl}/${putObjectRequest.getKey}"
       case _ => directToS3Uri
     }
     
@@ -49,22 +49,22 @@ object S3UploadResponse {
 class S3Actions() {
   private val s3NotFoundStatusList = List(403, 404)
 
-  def upload(file: File, user: User, bucketName: String, s3Client: AmazonS3, key: String, setPublicAcl: Boolean): S3UploadResponse = {
+  def upload(file: File, user: User, config: Config, setPublicAcl: Boolean): S3UploadResponse = {
 
-    getObject(key, bucketName, s3Client) match {
+    getObject(config.key(file.getName), config.bucketName, config.s3Client) match {
       case None => {
         val metadata = new ObjectMetadata
         metadata.addUserMetadata("author", user.email)
         if(setPublicAcl) { metadata.setContentType("text/html") }
 
-        val request = new PutObjectRequest(bucketName, key, file).withMetadata(metadata)
+        val request = new PutObjectRequest(config.bucketName, config.key(file.getName), file).withMetadata(metadata)
 
         val finalRequest = if(setPublicAcl) {
           request.withCannedAcl(CannedAccessControlList.PublicRead)
         } else { request }
 
-        s3Client.putObject(finalRequest) match {
-          case _: PutObjectResult => S3UploadResponse.buildSuccess(finalRequest)
+        config.s3Client.putObject(finalRequest) match {
+          case _: PutObjectResult => S3UploadResponse.buildSuccess(finalRequest, config)
           case _ => S3UploadFailure(None, None, Some(file.getName), Some("Upload Failed"))
         }
 
@@ -74,16 +74,12 @@ class S3Actions() {
   }
 
   def getObject(key: String, bucketName: String, s3Client: AmazonS3) = {
-
     try {
       s3Client.getObject(bucketName, key)
     } catch {
       case e: AmazonS3Exception if s3NotFoundStatusList.contains(e.getStatusCode) => None
     }
   }
-
-
-
 
 }
 

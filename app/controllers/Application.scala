@@ -35,7 +35,7 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
           val temporaryFilePath = Paths.get(s"/tmp/${f.filename}")
           f.ref.moveFileTo(temporaryFilePath, replace = true)
 
-          val res = s3Actions.upload(temporaryFilePath.toFile, request.user, Config.interactivesBucketName, Config.s3ClientUS, getChartKey(), setPublicAcl = true)
+          val res = s3Actions.upload(temporaryFilePath.toFile, request.user, ChartsToolConfig, setPublicAcl = true)
           Files.delete(temporaryFilePath)
           res
         }
@@ -48,21 +48,6 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
     }
   }
 
-  private def getS3Key(file: File) = {
-    s"$getCurrentDate/${file.getName.replace(' ', '_')}"
-  }
-
-  private def getChartKey() = {
-    val now = Calendar.getInstance().getTime
-    val dateFormat = new SimpleDateFormat("MMM/yyyy-MM-dd-hh:mm:ss")
-    s"${dateFormat.format(now).toLowerCase}/embed.html"
-  }
-
-  private def getCurrentDate = {
-    val now = Calendar.getInstance().getTime
-    val dateFormat = new SimpleDateFormat("yyyy/MM/dd")
-    dateFormat.format(now)
-  }
 
   private def bytesToMb (bytes: Long): Long = bytes / 1024 / 1024
 
@@ -78,7 +63,7 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
           val temporaryFilePath = Paths.get(s"/tmp/${f.filename}")
           f.ref.moveFileTo(temporaryFilePath, replace = true)
 
-          val res = s3Actions.upload(temporaryFilePath.toFile, request.user, Config.bucketName, Config.s3Client, getS3Key(temporaryFilePath.toFile), setPublicAcl = false)
+          val res = s3Actions.upload(temporaryFilePath.toFile, request.user, S3UploadAppConfig, setPublicAcl = false)
           Files.delete(temporaryFilePath)
           res
         }

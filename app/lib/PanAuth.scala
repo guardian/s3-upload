@@ -14,7 +14,7 @@ trait PandaController extends BaseControllerHelpers with Logging {
   def publicSettings: PublicSettings
 
   def unauthorisedResponse[A](request: Request[A]) = {
-    Future.successful(Unauthorized(views.html.login(Config.loginUri)(request)))
+    Future.successful(Unauthorized(views.html.login(S3UploadAppConfig.loginUri)(request)))
   }
 
   def authStatus(cookie: Cookie, publicKey: PublicKey): AuthenticationStatus = {
