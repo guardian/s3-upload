@@ -8,9 +8,10 @@ import play.api.routing.Router
 import play.filters.HttpFiltersComponents
 import play.filters.cors.{CORSComponents, CORSConfig}
 import router.Routes
+import play.api.Logging
 
 
-class AppComponents(context: Context) extends BuiltInComponentsFromContext(context: Context) with HttpFiltersComponents with AssetsComponents with CORSComponents {
+class AppComponents(context: Context) extends BuiltInComponentsFromContext(context: Context) with HttpFiltersComponents with AssetsComponents with CORSComponents with Logging {
 
 
   val s3Actions = new S3Actions()
@@ -24,7 +25,8 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
 
   override lazy val corsConfig: CORSConfig = CORSConfig.fromConfiguration(configuration)
 
-  println("cors config is --->", corsConfig)
+  logger.info("cors config is --->" + corsConfig)
+
 
   val disabledFilters: Set[EssentialFilter] = Set(allowedHostsFilter)
   final override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(disabledFilters.contains)
