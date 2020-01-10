@@ -12,9 +12,11 @@ You will also need media-service Janus credentials.
 sbt run
 ``` 
 
-### App
-To deploy the app, deploy the project `media-service::teamcity::s3-uploader` in riffraff.
+### Deployment
 
+The app is built by Team City and will automatically deploy through RiffRaff to both CODE and PROD on merge to master.
+
+To manually deploy the app, deploy the project `media-service::teamcity::s3-uploader` in riffraff.
 
 ### Adding a new service
 If you want another service or app to access the endpoints in s3-uploader (allowing it to upload to s3), there are a 
