@@ -26,5 +26,4 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   final override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(disabledFilters.contains)
 
   override def router: Router = new Routes(httpErrorHandler, api, assets, management)
-
 }

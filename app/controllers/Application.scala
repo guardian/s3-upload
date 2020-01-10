@@ -52,7 +52,6 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
   private def bytesToMb (bytes: Long): Long = bytes / 1024 / 1024
 
   def uploadFile = AuthAction (parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)) { request =>
-
     request.body match {
       case Left(MaxSizeExceeded(limit)) => {
         EntityTooLarge(views.html.tooLarge(request.user, bytesToMb(limit)))

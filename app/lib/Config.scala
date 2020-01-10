@@ -12,7 +12,6 @@ import scala.io.Source
 import scala.util.Try
 
 trait Config {
-
   // config properties required for each new app using the S3-Uploader
   val bucketName: String
   val region: String
@@ -42,8 +41,8 @@ trait Config {
       case e: FileNotFoundException => "DEV"
     }
   }
-
 }
+
 
 object S3UploadAppConfig extends Config {
   val bucketName = properties.getOrElse("s3.bucket", "s3-uploader-dev-bucket")
@@ -58,6 +57,7 @@ object S3UploadAppConfig extends Config {
     s"$getCurrentDate/${fileName.replace(' ', '_')}"
   }
 }
+
 
 object ChartsToolConfig extends Config {
   val bucketName = properties.getOrElse("s3.chartBucket", "gdn-cdn")
