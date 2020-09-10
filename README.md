@@ -14,7 +14,7 @@ sbt run
 
 ### Deployment
 
-The app is built by Team City and will automatically deploy through RiffRaff to both CODE and PROD on merge to master.
+The app is built by Team City and will automatically deploy through RiffRaff to both CODE and PROD on merge.
 
 To manually deploy the app, deploy the project `media-service::teamcity::s3-uploader` in riffraff.
 
