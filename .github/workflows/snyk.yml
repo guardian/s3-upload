@@ -26,3 +26,12 @@ jobs:
         with:
           args: --org=guardian --project-name=${{ github.repository }} --file=./build.sbt
           command: monitor
+      
+      - name: Run Snyk to check for Node vulnerabilities
+        if: ${{ always() }} # always ensures we run this regardless of failed steps
+        uses: snyk/actions/node@0.3.0
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --org=guardian --project-name=${{ github.repository }} --file=./public/package-lock.json
+          command: monitor
