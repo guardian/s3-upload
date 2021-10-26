@@ -7,8 +7,8 @@ on:
   schedule:
     - cron: '0 6 * * *'
   push:
-    # branches: 
-    #   - main
+     branches: 
+       - main
   workflow_dispatch:
 
 jobs:
@@ -33,5 +33,5 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --org=guardian --project-name=${{ github.repository }} --file=./public/package-lock.json
+          args: --org=guardian --project-name=${{ github.repository }} --file=./public/js/package-lock.json
           command: monitor
