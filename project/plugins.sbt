@@ -10,4 +10,4 @@ addSbtPlugin("com.gu" % "sbt-riffraff-artifact" % "1.1.9")
 
 addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.1.0-M13")
 
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.2")
