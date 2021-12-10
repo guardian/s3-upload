@@ -13,8 +13,8 @@ deployments:
     app: s3-uploader
     parameters:
       amiTags:
-        Recipe: editorial-tools-bionic-java8
-        AmigoStage: PROD
+        Recipe: editorial-tools-bionic-java8-test
+        AmigoStage: CODE
         BuiltBy: amigo
       cloudFormationStackName: s3-uploader
       cloudFormationStackByTags: false
