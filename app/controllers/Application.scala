@@ -19,7 +19,7 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
   }
 
   def upload = AuthAction { request => {
-      Redirect(routes.Application.index())
+      Redirect(routes.Application.index)
     }
   }
 
@@ -33,7 +33,7 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
       case Right(multipartForm) => {
         val uploads : Seq[S3UploadResponse] = multipartForm.files.map { f =>
           val temporaryFilePath = Paths.get(s"/tmp/${f.filename}")
-          f.ref.moveFileTo(temporaryFilePath, replace = true)
+          f.ref.moveTo(temporaryFilePath, replace = true)
 
           val res = s3Actions.upload(temporaryFilePath.toFile, request.user, ChartsToolConfig, setPublicAcl = true)
           Files.delete(temporaryFilePath)
@@ -60,7 +60,7 @@ class Application(s3Actions: S3Actions, override val publicSettings: PublicSetti
       case Right(multipartForm) => {
         val uploads : Seq[S3UploadResponse] = multipartForm.files.map { f =>
           val temporaryFilePath = Paths.get(s"/tmp/${f.filename}")
-          f.ref.moveFileTo(temporaryFilePath, replace = true)
+          f.ref.moveTo(temporaryFilePath, replace = true)
 
           val res = s3Actions.upload(temporaryFilePath.toFile, request.user, S3UploadAppConfig, setPublicAcl = false)
           Files.delete(temporaryFilePath)
