@@ -33,7 +33,7 @@ trait Config {
   implicit val stage : String = {
     try {
       val stageFile = Source.fromFile("/etc/gu/stage")
-      val stage = stageFile.getLines.next
+      val stage = stageFile.getLines().next()
       stageFile.close()
       if (List("PROD", "CODE").contains(stage)) stage else "DEV"
     }

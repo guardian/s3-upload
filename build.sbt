@@ -2,20 +2,23 @@ import PlayKeys._
 
 name := "s3-uploader"
 version := "1.0"
-scalaVersion := "2.12.8"
+scalaVersion := "2.13.7"
 
 scalacOptions := Seq(
   "-unchecked",
   "-deprecation",
   "-feature",
-  "-Xfatal-warnings",
-  "-Ypartial-unification"
+  "-Xfatal-warnings"
 )
 
 libraryDependencies ++= Seq(
   ws, filters,
   "com.amazonaws" % "aws-java-sdk-s3" % "1.11.539",
-  "com.gu" %% "pan-domain-auth-verification" % "0.8.2"
+  "com.gu" %% "pan-domain-auth-verification" % "1.0.4"
+)
+
+dependencyOverrides ++= Seq (
+  "org.bouncycastle" % "bcprov-jdk15on" % "1.67"
 )
 
 lazy val root = (project in file("."))
@@ -27,9 +30,9 @@ lazy val root = (project in file("."))
     riffRaffManifestProjectName := s"${riffRaffPackageName.value}",
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
     riffRaffUploadManifestBucket := Option("riffraff-builds"),
-    riffRaffPackageType := (packageBin in Debian).value,
+    riffRaffPackageType := (Debian / packageBin).value,
     riffRaffArtifactResources := Seq(
-      (packageBin in Debian ).value -> s"${name.value}/${name.value}.deb",
+      (Debian / packageBin).value -> s"${name.value}/${name.value}.deb",
       baseDirectory.value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
     ),
     debianPackageDependencies := Seq("openjdk-8-jre-headless"),
@@ -37,7 +40,7 @@ lazy val root = (project in file("."))
     packageSummary := "S3 Uploader",
     packageDescription := """Allow uploading images to S3""",
 
-    javaOptions in Universal ++= Seq(
+    Universal / javaOptions ++= Seq(
       "-Dpidfile.path=/dev/null"
     )
   )

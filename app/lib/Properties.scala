@@ -2,7 +2,7 @@ package lib
 
 import java.io.{InputStream, FileInputStream}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 
 object Properties {
