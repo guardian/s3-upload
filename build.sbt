@@ -26,6 +26,8 @@ lazy val root = (project in file("."))
   .settings(
     playDefaultPort := 9050,
 
+    pipelineStages := Seq(digest, gzip),
+
     riffRaffPackageName := s"media-service::teamcity::${name.value}",
     riffRaffManifestProjectName := s"${riffRaffPackageName.value}",
     riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
