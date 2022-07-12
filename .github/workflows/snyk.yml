@@ -1,37 +1,18 @@
-# This action runs every day at 6 AM and on every push
-# If the branch it's running on is main then it will run snyk monitor (reports vulnerabilities to snyk.io)
-# Otherwise it will run snyk test
+# This action runs snyk monitor on every push to main
 name: Snyk
 
 on:
-  schedule:
-    - cron: '0 6 * * *'
   push:
-     branches: 
-       - main
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   security:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v2
-
-      - name: Run Snyk to check for Scala vulnerabilities
-        uses: snyk/actions/scala@0.3.0
-        if: ${{ always() }} # always ensures we run this regardless of failed steps
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --org=guardian --project-name=${{ github.repository }} --file=./build.sbt
-          command: monitor
-      
-      - name: Run Snyk to check for Node vulnerabilities
-        if: ${{ always() }} # always ensures we run this regardless of failed steps
-        uses: snyk/actions/node@0.3.0
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --org=guardian --project-name=${{ github.repository }} --file=./public/js/package-lock.json
-          command: monitor
+    uses: guardian/.github/.github/workflows/sbt-node-snyk.yml@main
+    with:
+      DEBUG: true
+      ORG: guardian
+      SKIP_NODE: true
+    secrets:
+       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
