@@ -14,7 +14,7 @@ scalacOptions := Seq(
 libraryDependencies ++= Seq(
   ws, filters,
   "com.amazonaws" % "aws-java-sdk-s3" % "1.11.539",
-  "com.gu" %% "pan-domain-auth-verification" % "1.0.4"
+  "com.gu" %% "pan-domain-auth-verification" % "1.0.6"
 )
 
 dependencyOverrides ++= Seq (
