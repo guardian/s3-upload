@@ -2,7 +2,7 @@ import PlayKeys._
 
 name := "s3-uploader"
 version := "1.0"
-scalaVersion := "2.13.7"
+scalaVersion := "2.13.10"
 
 scalacOptions := Seq(
   "-unchecked",
