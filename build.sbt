@@ -18,7 +18,8 @@ libraryDependencies ++= Seq(
 )
 
 dependencyOverrides ++= Seq (
-  "org.bouncycastle" % "bcprov-jdk15on" % "1.67"
+  "org.bouncycastle" % "bcprov-jdk15on" % "1.67",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
 )
 
 lazy val root = (project in file("."))
