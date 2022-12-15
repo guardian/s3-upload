@@ -4,8 +4,6 @@ stacks: [media-service]
 deployments:
   s3-uploader:
     type: autoscaling
-    parameters:
-      bucket: media-service-dist
     dependencies:
     - s3-uploader-ami-update
   s3-uploader-ami-update:
