@@ -43,3 +43,17 @@ jobs:
 
       - name: SBT
         run: sbt "clean;compile;Debian / packageBin"
+
+      # Make the filename produced by SBT easier.
+      # TODO find out how to do this within `build.sbt`
+      - name: Rename debian artifact
+        run: mv target/s3-uploader_1.0_all.deb target/s3-uploader.deb
+
+      - uses: guardian/actions-riff-raff@v2
+        with:
+          projectName: media-service::teamcity::s3-uploader # This name carries over from when the project was built in TeamCity
+          buildNumberOffset: 159
+          configPath: conf/riff-raff.yaml
+          contentDirectories: |
+            s3-uploader:
+              - target/s3-uploader.deb
