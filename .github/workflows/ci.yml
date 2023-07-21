@@ -51,7 +51,7 @@ jobs:
 
       - uses: guardian/actions-riff-raff@v2
         with:
-          projectName: media-service::teamcity::s3-uploader # This name carries over from when the project was built in TeamCity
+          projectName: media-service::s3-uploader
           buildNumberOffset: 159
           configPath: conf/riff-raff.yaml
           contentDirectories: |
