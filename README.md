@@ -15,7 +15,7 @@ sbt run
 ### Deployment
 The app is built using GitHub Actions, with CD (via Riff-Raff) enabled for changes on `main`.
 
-The Riff-Raff project is `media-service::teamcity::s3-uploader`.
+The Riff-Raff project is `media-service::s3-uploader`.
 
 ### Adding a new service
 If you want another service or app to access the endpoints in s3-uploader (allowing it to upload to s3), there are a 
