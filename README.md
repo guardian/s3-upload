@@ -13,10 +13,9 @@ sbt run
 ``` 
 
 ### Deployment
+The app is built using GitHub Actions, with CD (via Riff-Raff) enabled for changes on `main`.
 
-The app is built by Team City and will automatically deploy through RiffRaff to both CODE and PROD on merge to master.
-
-To manually deploy the app, deploy the project `media-service::teamcity::s3-uploader` in riffraff.
+The Riff-Raff project is `media-service::s3-uploader`.
 
 ### Adding a new service
 If you want another service or app to access the endpoints in s3-uploader (allowing it to upload to s3), there are a 

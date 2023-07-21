@@ -23,21 +23,11 @@ dependencyOverrides ++= Seq (
 )
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin)
+  .enablePlugins(PlayScala, JDebPackaging, SystemdPlugin)
   .settings(
     playDefaultPort := 9050,
 
     pipelineStages := Seq(digest, gzip),
-
-    riffRaffPackageName := s"media-service::teamcity::${name.value}",
-    riffRaffManifestProjectName := s"${riffRaffPackageName.value}",
-    riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
-    riffRaffUploadManifestBucket := Option("riffraff-builds"),
-    riffRaffPackageType := (Debian / packageBin).value,
-    riffRaffArtifactResources := Seq(
-      (Debian / packageBin).value -> s"${name.value}/${name.value}.deb",
-      baseDirectory.value / "conf/riff-raff.yaml" -> "riff-raff.yaml"
-    ),
     debianPackageDependencies := Seq("openjdk-8-jre-headless"),
     maintainer := "Editorial Tools <digitalcms.dev@guardian.co.uk>",
     packageSummary := "S3 Uploader",

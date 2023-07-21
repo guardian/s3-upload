@@ -1,0 +1,59 @@
+# Find full documentation here https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+name: CI
+
+on:
+  pull_request:
+
+  # Manual invocation.
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    permissions:
+      # required by aws-actions/configure-aws-credentials
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
+          aws-region: eu-west-1
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+          cache-dependency-path: 'public/js/package-lock.json'
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'corretto'
+
+      - name: Install NPM dependencies
+        run: npm ci
+        working-directory: public/js
+
+      - name: SBT
+        run: sbt "clean;compile;Debian / packageBin"
+
+      # Make the filename produced by SBT easier.
+      # TODO find out how to do this within `build.sbt`
+      - name: Rename debian artifact
+        run: mv target/s3-uploader_1.0_all.deb target/s3-uploader.deb
+
+      - uses: guardian/actions-riff-raff@v2
+        with:
+          projectName: media-service::s3-uploader
+          buildNumberOffset: 159
+          configPath: conf/riff-raff.yaml
+          contentDirectories: |
+            s3-uploader:
+              - target/s3-uploader.deb
