@@ -30,6 +30,8 @@ trait Config {
 
   val loginUri = new URI(s"https://login.$domain/login?returnUrl=https://s3-uploader.$domain")
 
+  val pinboardLoaderUrl = new URI(s"https://pinboard.$domain/pinboard.loader.js")
+
   implicit val stage : String = {
     try {
       val stageFile = Source.fromFile("/etc/gu/stage")
