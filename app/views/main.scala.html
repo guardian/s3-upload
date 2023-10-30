@@ -1,4 +1,5 @@
 @import com.gu.pandomainauth.model.User
+@import lib.S3UploadAppConfig
 @(user: User, title: String)(content: Html)
 
 <!DOCTYPE html>
@@ -41,5 +42,6 @@
         </div>
 
         <script src="@routes.Assets.versioned("js/node_modules/material-design-lite/material.min.js")"></script>
+        <script async src="@S3UploadAppConfig.pinboardLoaderUrl"></script>
     </body>
 </html>
