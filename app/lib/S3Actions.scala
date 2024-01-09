@@ -11,34 +11,30 @@ import play.api.libs.functional.syntax._
 
 trait S3UploadResponse {
   def url: Option[URI]
-  def directToS3Url: Option[URI]
   def fileName : Option[String]
   def msg  : Option[String]
 }
 
-case class S3UploadSuccess(url: Option[URI], directToS3Url: Option[URI], fileName: Option[String], msg: Option[String])
+case class S3UploadSuccess(url: Option[URI], fileName: Option[String], msg: Option[String])
   extends S3UploadResponse
 
-case class S3UploadFailure(url: Option[URI], directToS3Url: Option[URI], fileName: Option[String], msg: Option[String])
+case class S3UploadFailure(url: Option[URI], fileName: Option[String], msg: Option[String])
   extends S3UploadResponse
 
 object S3UploadResponse {
   def buildSuccess(putObjectRequest: PutObjectRequest, config: Config) = {
-    val directToS3Uri = s"https://s3-eu-west-1.amazonaws.com/${putObjectRequest.getBucketName}/${putObjectRequest.getKey}"
-
     val uri = config.stage match {
       case "PROD" => s"${config.prettyUrl}/${putObjectRequest.getKey}"
-      case _ => directToS3Uri
+      case _ => s"https://s3-eu-west-1.amazonaws.com/${putObjectRequest.getBucketName}/${putObjectRequest.getKey}"
     }
     
-    S3UploadSuccess(Some(new URI(uri)), Some(new URI(directToS3Uri)), Some(putObjectRequest.getKey), None)
+    S3UploadSuccess(Some(new URI(uri)), Some(putObjectRequest.getKey), None)
   }
 
   implicit val writesUri: Writes[URI] = (uri: URI) => JsString(uri.toString)
 
   implicit val s3UploadSuccessWrites: Writes[S3UploadSuccess] = (
     (JsPath \ "url").writeNullable[URI] and
-    (JsPath \ "directToS3Url").writeNullable[URI] and
     (JsPath \ "fileName").writeNullable[String] and
     (JsPath \ "msg").writeNullable[String]
   )(unlift(S3UploadSuccess.unapply))
@@ -65,11 +61,11 @@ class S3Actions() {
 
         config.s3Client.putObject(finalRequest) match {
           case _: PutObjectResult => S3UploadResponse.buildSuccess(finalRequest, config)
-          case _ => S3UploadFailure(None, None, Some(file.getName), Some("Upload Failed"))
+          case _ => S3UploadFailure(None, Some(file.getName), Some("Upload Failed"))
         }
 
       }
-      case _ => S3UploadFailure(None, None, Some(file.getName), Some("File with that name already exists"))
+      case _ => S3UploadFailure(None, Some(file.getName), Some("File with that name already exists"))
     }
   }
 
