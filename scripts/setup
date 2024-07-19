@@ -1,0 +1,7 @@
+#!/bin/bash -e
+
+pushd "$(dirname "$0")"
+dev-nginx setup-app ../nginx-mappings.yml
+cd ../public/js
+npm install
+popd

@@ -9,8 +9,11 @@ Requires the [login service](https://github.com/guardian/login.gutools), so clon
 You will also need media-service Janus credentials.
 
 ```
+scripts/setup
 sbt run
 ``` 
+
+The app should now be available at https://s3-uploader.local.dev-gutools.co.uk/
 
 ### Deployment
 The app is built using GitHub Actions, with CD (via Riff-Raff) enabled for changes on `main`.
