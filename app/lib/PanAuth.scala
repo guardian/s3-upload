@@ -24,7 +24,8 @@ trait PandaController extends BaseControllerHelpers with Logging {
       PanDomain.guardianValidation,
       apiGracePeriod = 0,
       system = "s3-upload",
-      cacheValidation = false
+      cacheValidation = false,
+      forceExpiry = false
     )
   }
 
