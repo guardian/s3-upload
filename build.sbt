@@ -28,7 +28,7 @@ lazy val root = (project in file("."))
     playDefaultPort := 9050,
 
     pipelineStages := Seq(digest, gzip),
-    debianPackageDependencies := Seq("openjdk-8-jre-headless"),
+    debianPackageDependencies := Seq("java11-runtime-headless"),
     maintainer := "Editorial Tools <digitalcms.dev@guardian.co.uk>",
     packageSummary := "S3 Uploader",
     packageDescription := """Allow uploading images to S3""",
