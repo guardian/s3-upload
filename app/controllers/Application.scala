@@ -5,7 +5,7 @@ import java.nio.file.{Files, Paths}
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import com.gu.pandomainauth.PublicSettings
 import lib._
 import play.api.mvc.{ControllerComponents, MaxSizeExceeded}
