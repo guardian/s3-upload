@@ -9,13 +9,26 @@ Requires the [login service](https://github.com/guardian/login.gutools), so clon
 You will also need media-service Janus credentials.
 
 ```
+scripts/setup
 sbt run
 ``` 
+
+The app should now be available at https://s3-uploader.local.dev-gutools.co.uk/
 
 ### Deployment
 The app is built using GitHub Actions, with CD (via Riff-Raff) enabled for changes on `main`.
 
 The Riff-Raff project is `media-service::s3-uploader`.
+
+### Smoke tests
+
+The core functionality of this app is the ability to upload files to S3.
+
+To test:
+- Open incognito tab
+- Check that you are required to login to https://s3-uploader.gutools.co.uk
+- Attempt to upload a small test image (that you don't mind becoming public)
+- Check that the test image is accessible using the link provided after upload
 
 ### Adding a new service
 If you want another service or app to access the endpoints in s3-uploader (allowing it to upload to s3), there are a 

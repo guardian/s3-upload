@@ -13,13 +13,8 @@ scalacOptions := Seq(
 
 libraryDependencies ++= Seq(
   ws, filters,
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.12.351",
-  "com.gu" %% "pan-domain-auth-verification" % "1.2.0"
-)
-
-dependencyOverrides ++= Seq (
-  "org.bouncycastle" % "bcprov-jdk15on" % "1.67",
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.12.761",
+  "com.gu" %% "pan-domain-auth-verification" % "4.0.0"
 )
 
 lazy val root = (project in file("."))
@@ -28,7 +23,7 @@ lazy val root = (project in file("."))
     playDefaultPort := 9050,
 
     pipelineStages := Seq(digest, gzip),
-    debianPackageDependencies := Seq("openjdk-8-jre-headless"),
+    debianPackageDependencies := Seq("java11-runtime-headless"),
     maintainer := "Editorial Tools <digitalcms.dev@guardian.co.uk>",
     packageSummary := "S3 Uploader",
     packageDescription := """Allow uploading images to S3""",
