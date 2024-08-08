@@ -2,11 +2,11 @@ package lib
 
 
 import com.gu.pandomainauth.model.{Authenticated, AuthenticatedUser, AuthenticationStatus, User}
+import com.gu.pandomainauth.service.CryptoConf.Verification
 import com.gu.pandomainauth.{PanDomain, PublicSettings}
 import play.api.Logging
 import play.api.mvc._
 
-import java.security.PublicKey
 import scala.concurrent.{ExecutionContext, Future}
 import com.gu.permissions.PermissionsProvider
 import com.gu.permissions.PermissionDefinition
@@ -28,46 +28,37 @@ trait PandaController extends BaseControllerHelpers with Logging {
     Future.successful(Forbidden(views.html.unauthorised()(request)))
   }
 
-  def authStatus(cookie: Cookie, publicKey: PublicKey): AuthenticationStatus = {
-    PanDomain.authStatus(
-      cookie.value,
-      publicKey,
-      PanDomain.guardianValidation,
-      apiGracePeriod = 0,
-      system = "s3-upload",
-      cacheValidation = false,
-      forceExpiry = false
-    )
-  }
+  def authStatus(cookie: Cookie, verification: Verification): AuthenticationStatus = PanDomain.authStatus(
+    cookie.value,
+    verification,
+    PanDomain.guardianValidation,
+    apiGracePeriod = 0,
+    system = "s3-upload",
+    cacheValidation = false,
+    forceExpiry = false
+  )
 
   object AuthAction extends ActionBuilder[UserRequest, AnyContent] {
     override def parser: BodyParser[AnyContent] = PandaController.this.controllerComponents.parsers.default
     override protected def executionContext: ExecutionContext = PandaController.this.controllerComponents.executionContext
 
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
-      publicSettings.publicKey match {
-        case Some(pk) =>
-          request.cookies.get("gutoolsAuth-assym") match {
-            case Some(cookie) =>
-              authStatus(cookie, pk) match {
-                case Authenticated(AuthenticatedUser(user, _, _, _, _)) =>
-                  if (!permissions.hasPermission(S3UploaderAccess, user.email)) {
-                    logger.warn(s"User ${user.email} does not have ${S3UploaderAccess.name} permission")
-                  }
-                  block(new UserRequest(user, request))
-
-                case other =>
-                  logger.info(s"Login response $other")
-                  unauthenticatedResponse(request)
+      request.cookies.get("gutoolsAuth-assym") match {
+        case Some(cookie) =>
+          authStatus(cookie, publicSettings.verification) match {
+            case Authenticated(AuthenticatedUser(user, _, _, _, _)) =>
+              if (!permissions.hasPermission(S3UploaderAccess, user.email)) {
+                logger.warn(s"User ${user.email} does not have ${S3UploaderAccess.name} permission")
               }
+              block(new UserRequest(user, request))
 
-            case None =>
-              logger.warn("Panda cookie missing")
+            case other =>
+              logger.info(s"Login response $other")
               unauthenticatedResponse(request)
           }
 
         case None =>
-          logger.error("Panda public key unavailable")
+          logger.warn("Panda cookie missing")
           unauthenticatedResponse(request)
       }
     }
