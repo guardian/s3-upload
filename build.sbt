@@ -2,7 +2,7 @@ import PlayKeys._
 
 name := "s3-uploader"
 version := "1.0"
-scalaVersion := "2.13.10"
+scalaVersion := "2.13.14"
 
 scalacOptions := Seq(
   "-unchecked",
@@ -14,7 +14,7 @@ scalacOptions := Seq(
 libraryDependencies ++= Seq(
   ws, filters,
   "com.amazonaws" % "aws-java-sdk-s3" % "1.12.761",
-  "com.gu" %% "pan-domain-auth-verification" % "4.0.0"
+  "com.gu" %% "pan-domain-auth-verification" % "5.0.0"
 )
 
 lazy val root = (project in file("."))
