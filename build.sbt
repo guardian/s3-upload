@@ -14,7 +14,7 @@ scalacOptions := Seq(
 libraryDependencies ++= Seq(
   ws, filters,
   "com.amazonaws" % "aws-java-sdk-s3" % "1.12.761",
-  "com.gu" %% "pan-domain-auth-verification" % "5.0.0"
+  "com.gu" %% "pan-domain-auth-verification" % "6.0.0-PREVIEW.update-settings-loading-and-parsing-code.2024-08-09T1450.4c87946a"
 )
 
 lazy val root = (project in file("."))
