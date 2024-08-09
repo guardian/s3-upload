@@ -2,10 +2,11 @@ package lib
 
 
 import com.gu.pandomainauth.model.{Authenticated, AuthenticatedUser, AuthenticationStatus, User}
-import com.gu.pandomainauth.{PanDomain, PublicKey, PublicSettings}
+import com.gu.pandomainauth.{PanDomain, PublicSettings}
 import play.api.Logging
 import play.api.mvc._
 
+import java.security.PublicKey
 import scala.concurrent.{ExecutionContext, Future}
 
 class UserRequest[A](val user: User, request: Request[A]) extends WrappedRequest[A](request)
