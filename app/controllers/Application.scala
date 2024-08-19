@@ -10,9 +10,15 @@ import com.gu.pandomainauth.PublicSettings
 import lib._
 import play.api.mvc.{ControllerComponents, MaxSizeExceeded}
 import play.api.libs.json._
+import com.gu.permissions.PermissionsProvider
 
-class Application(s3Actions: S3Actions, override val publicSettings: PublicSettings,
-                  override val controllerComponents: ControllerComponents)(implicit mat: Materializer) extends PandaController {
+class Application(
+  s3Actions: S3Actions,
+  override val publicSettings: PublicSettings,
+  override val permissions: PermissionsProvider,
+  override val controllerComponents: ControllerComponents
+)(implicit mat: Materializer) extends PandaController {
+
   def index = AuthAction { request => {
       Ok(views.html.index(request.user)(request))
     }
