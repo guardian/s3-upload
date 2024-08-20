@@ -8,10 +8,11 @@ import play.api.routing.Router
 import play.filters.HttpFiltersComponents
 import play.filters.cors.{CORSComponents}
 import router.Routes
+import com.gu.permissions.PermissionsProvider
+import com.gu.permissions.PermissionsConfig
 
 
 class AppComponents(context: Context) extends BuiltInComponentsFromContext(context: Context) with HttpFiltersComponents with AssetsComponents with CORSComponents {
-
 
   val s3Actions = new S3Actions()
 
@@ -19,7 +20,19 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
 
   publicSettings.start()
 
-  val api = new Application(s3Actions, publicSettings, controllerComponents)
+  val permissions = {
+    val permissionsStage = S3UploadAppConfig.stage match {
+      case "PROD" => "PROD"
+      case _ => "CODE"
+    }
+    PermissionsProvider(PermissionsConfig(
+      stage = permissionsStage,
+      region = S3UploadAppConfig.region,
+      awsCredentials = S3UploadAppConfig.awsCredentials)
+    )
+  }
+
+  val api = new Application(s3Actions, publicSettings, permissions, controllerComponents)
   val management = new Management(controllerComponents)
 
   val disabledFilters: Set[EssentialFilter] = Set(allowedHostsFilter)

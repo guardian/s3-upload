@@ -1,0 +1,35 @@
+@()(implicit request: RequestHeader)
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Unauthorised | S3 Uploader</title>
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+        <link rel="stylesheet" href="@routes.Assets.versioned("js/node_modules/material-design-lite/material.min.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    </head>
+
+    <body>
+        <div class="layout mdl-layout mdl-color--grey-100 mdl-js-layout mdl-layout--fixed-header">
+            <header class="mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
+                <div class="mdl-layout__header-row">
+                    <span class="mdl-layout-title">Unauthorised</span>
+                    <div class="mdl-layout-spacer"></div>
+                    S3 Uploader
+                </div>
+            </header>
+            <main class="page-content mdl-layout__content mdl-color--grey-100">
+                <h2 class="not-authed">
+                    You're logged in, but you've not been granted access to the S3 Uploader.
+                </h2>
+                <p>
+                    If you need to use this tool, please contact <a href="mailto:central.production@@theguardian.com">Central Production</a> to request access.
+                </p>
+            </main>
+        </div>
+
+        <script src="@routes.Assets.versioned("js/node_modules/material-design-lite/material.min.js")"></script>
+    </body>
+</html>
