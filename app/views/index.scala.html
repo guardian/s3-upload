@@ -2,10 +2,10 @@
 @import com.gu.pandomainauth.model.User
 @(user: User)(implicit request: RequestHeader)
 
-@main(user, "Choose a file to upload") {
+@main(user, "Choose a file to upload for public access") {
     <div class="mdl-grid">
         <div class="mdl-cell mdl-cell--12-col">
-            <h1>Choose files to upload</h1>
+            <h1>Choose files to upload for public access</h1>
             <div class="upload-error upload-error--hidden" id="png-error">
                 <p> The Grid now accepts PNGs, give it a try!</p>
             </div>
