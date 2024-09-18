@@ -48,9 +48,11 @@ trait PandaController extends BaseControllerHelpers with Logging {
           authStatus(cookie, publicSettings.verification) match {
             case Authenticated(AuthenticatedUser(user, _, _, _, _)) =>
               if (!permissions.hasPermission(S3UploaderAccess, user.email)) {
-                logger.warn(s"User ${user.email} does not have ${S3UploaderAccess.name} permission")
+                logger.error(s"User ${user.email} does not have ${S3UploaderAccess.name} permission")
+                unauthorisedResponse(request)
+              } else {
+                block(new UserRequest(user, request))
               }
-              block(new UserRequest(user, request))
 
             case other =>
               logger.info(s"Login response $other")
