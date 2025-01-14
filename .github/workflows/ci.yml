@@ -14,28 +14,20 @@ jobs:
   CI:
     runs-on: ubuntu-latest
     permissions:
-      # required by aws-actions/configure-aws-credentials
       id-token: write
       contents: read
+      pull-requests: write
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
-          aws-region: eu-west-1
+      - uses: guardian/setup-scala@v1
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version-file: '.nvmrc'
           cache: npm
           cache-dependency-path: 'public/js/package-lock.json'
-
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'corretto'
 
       - name: Install NPM dependencies
         run: npm ci
@@ -49,8 +41,10 @@ jobs:
       - name: Rename debian artifact
         run: mv target/s3-uploader_1.0_all.deb target/s3-uploader.deb
 
-      - uses: guardian/actions-riff-raff@v2
+      - uses: guardian/actions-riff-raff@v4
         with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          roleArn: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
           projectName: media-service::s3-uploader
           buildNumberOffset: 159
           configPath: conf/riff-raff.yaml
