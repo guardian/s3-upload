@@ -23,11 +23,13 @@ case class S3UploadFailure(url: Option[URI], fileName: Option[String], msg: Opti
 
 object S3UploadResponse {
   def buildSuccess(putObjectRequest: PutObjectRequest, config: Config) = {
-    val uri = config.stage match {
-      case "PROD" => s"${config.prettyUrl}/${putObjectRequest.getKey}"
-      case _ => s"https://s3-eu-west-1.amazonaws.com/${putObjectRequest.getBucketName}/${putObjectRequest.getKey}"
+    val uri = config.maybePrettyBaseUrl match {
+      case Some(prettyBaseUrl) =>
+        s"$prettyBaseUrl/${putObjectRequest.getKey}"
+      case None =>
+        s"https://s3-eu-west-1.amazonaws.com/${putObjectRequest.getBucketName}/${putObjectRequest.getKey}"
     }
-    
+
     S3UploadSuccess(Some(new URI(uri)), Some(putObjectRequest.getKey), None)
   }
 

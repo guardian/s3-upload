@@ -17,7 +17,7 @@ trait Config {
   val region: String
   val s3Client: AmazonS3
   def key (fileName: String): String
-  val prettyUrl: String
+  val maybePrettyBaseUrl: Option[String]
 
   val properties: Map[String, String] = Try(Properties.fromPath("/etc/gu/s3-uploader.properties")).getOrElse(Map.empty)
 
@@ -50,7 +50,7 @@ object S3UploadAppConfig extends Config {
   val bucketName = properties.getOrElse("s3.bucket", "s3-uploader-dev-bucket")
   val region = properties.getOrElse("aws.region", "eu-west-1")
   val s3Client = AmazonS3ClientBuilder.standard().withRegion(region).withCredentials(awsCredentials).build()
-  val prettyUrl = "https://uploads.guim.co.uk"
+  val maybePrettyBaseUrl = properties.get("prettyBaseUrl")
 
   def key(fileName: String) = {
     val now = Calendar.getInstance().getTime
@@ -65,7 +65,7 @@ object ChartsToolConfig extends Config {
   val bucketName = properties.getOrElse("s3.chartBucket", "gdn-cdn")
   val region = properties.getOrElse("aws.chartRegion", "us-east-1")
   val s3Client = AmazonS3ClientBuilder.standard().withRegion(region).withCredentials(awsCredentials).build()
-  val prettyUrl = "https://interactive.guim.co.uk"
+  val maybePrettyBaseUrl = if (stage == "PROD") Some("https://interactive.guim.co.uk") else None
 
   def key(fileName: String) = {
     val now = Calendar.getInstance().getTime
