@@ -11,7 +11,7 @@ deployments:
     app: s3-uploader
     parameters:
       amiTags:
-        Recipe: editorial-tools-focal-java17
+        Recipe: editorial-tools-jammy-java17
         AmigoStage: PROD
         BuiltBy: amigo
       cloudFormationStackName: s3-uploader
