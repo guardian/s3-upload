@@ -43,6 +43,10 @@ trait Config {
       case e: FileNotFoundException => "DEV"
     }
   }
+
+  val telemetryUrl =
+    s"https://user-telemetry.$domain/guardian-tool-accessed?app=s3-upload&stage=$stage"
+
 }
 
 
