@@ -1,6 +1,6 @@
 @import com.gu.pandomainauth.model.User
 @import lib.S3UploadAppConfig
-@(user: User, title: String)(content: Html)
+@(user: User, title: String, maybeTelemetryUrl: Option[String] = None)(content: Html)
 
 <!DOCTYPE html>
 
@@ -43,5 +43,9 @@
 
         <script src="@routes.Assets.versioned("js/node_modules/material-design-lite/material.min.js")"></script>
         <script async src="@S3UploadAppConfig.pinboardLoaderUrl"></script>
+        <script type="module">
+            const image = new Image();
+            image.src = `@Html(S3UploadAppConfig.telemetryUrl)&path=${window.location.pathname}`;
+        </script>
     </body>
 </html>
