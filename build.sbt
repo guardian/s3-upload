@@ -15,7 +15,8 @@ libraryDependencies ++= Seq(
   ws, filters,
   "com.amazonaws" % "aws-java-sdk-s3" % "1.12.761",
   "com.gu" %% "pan-domain-auth-verification" % "7.0.0",
-  "com.gu" %% "editorial-permissions-client" % "3.0.0"
+  "com.gu" %% "editorial-permissions-client" % "3.0.0",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.4"
 )
 
 resolvers ++= Resolver.sonatypeOssRepos("releases")
