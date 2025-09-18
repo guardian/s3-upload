@@ -2,7 +2,7 @@ import PlayKeys._
 
 name := "s3-uploader"
 version := "1.0"
-scalaVersion := "2.13.14"
+scalaVersion := "2.13.16"
 
 scalacOptions := Seq(
   "-unchecked",
@@ -14,7 +14,7 @@ scalacOptions := Seq(
 libraryDependencies ++= Seq(
   ws, filters,
   "com.amazonaws" % "aws-java-sdk-s3" % "1.12.761",
-  "com.gu" %% "pan-domain-auth-verification" % "7.0.0",
+  "com.gu" %% "pan-domain-auth-verification" % "11.0.0-PREVIEW.sh-wsyupgrade-aws-sdk-to-2.2025-09-17T1358.a15b1789",
   "com.gu" %% "editorial-permissions-client" % "3.0.0",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.15.4"
 )

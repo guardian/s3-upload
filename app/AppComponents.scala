@@ -10,13 +10,20 @@ import play.filters.cors.{CORSComponents}
 import router.Routes
 import com.gu.permissions.PermissionsProvider
 import com.gu.permissions.PermissionsConfig
+import com.gu.pandomainauth.S3BucketLoader
+import com.gu.pandomainauth.Settings
+import java.util.concurrent.Executors
 
 
 class AppComponents(context: Context) extends BuiltInComponentsFromContext(context: Context) with HttpFiltersComponents with AssetsComponents with CORSComponents {
 
   val s3Actions = new S3Actions()
+  
+  val s3BucketLoader: S3BucketLoader = (key: String) => (
+    S3UploadAppConfig.s3Client.getObject("pan-domain-auth-settings", key).getObjectContent
+  )
 
-  val publicSettings = new PublicSettings(s"${S3UploadAppConfig.domain}.settings.public", "pan-domain-auth-settings", S3UploadAppConfig.s3Client)
+  val publicSettings = new PublicSettings(new Settings.Loader(s3BucketLoader, s"${S3UploadAppConfig.domain}.settings.public"), Executors.newScheduledThreadPool(1)) 
 
   publicSettings.start()
 
