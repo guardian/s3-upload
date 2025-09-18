@@ -10,6 +10,7 @@ import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 import com.gu.permissions.PermissionsProvider
 import com.gu.permissions.PermissionDefinition
+import java.time.Duration
 
 class UserRequest[A](val user: User, request: Request[A]) extends WrappedRequest[A](request)
 
@@ -32,7 +33,7 @@ trait PandaController extends BaseControllerHelpers with Logging {
     cookie.value,
     verification,
     PanDomain.guardianValidation,
-    apiGracePeriod = 0,
+    apiGracePeriod = Duration.ZERO,
     system = "s3-upload",
     cacheValidation = false,
     forceExpiry = false
