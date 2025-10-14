@@ -11,6 +11,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.gu.permissions.PermissionsProvider
 import com.gu.permissions.PermissionDefinition
 
+import java.time.Duration
+import java.time.Duration.ofMinutes
+
 class UserRequest[A](val user: User, request: Request[A]) extends WrappedRequest[A](request)
 
 trait PandaController extends BaseControllerHelpers with Logging {
@@ -32,7 +35,7 @@ trait PandaController extends BaseControllerHelpers with Logging {
     cookie.value,
     verification,
     PanDomain.guardianValidation,
-    apiGracePeriod = 0,
+    apiGracePeriod = ofMinutes(0),
     system = "s3-upload",
     cacheValidation = false,
     forceExpiry = false

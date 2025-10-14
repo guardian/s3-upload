@@ -6,11 +6,9 @@ import play.api.BuiltInComponentsFromContext
 import play.api.mvc.EssentialFilter
 import play.api.routing.Router
 import play.filters.HttpFiltersComponents
-import play.filters.cors.{CORSComponents}
+import play.filters.cors.CORSComponents
 import router.Routes
-import com.gu.permissions.PermissionsProvider
-import com.gu.permissions.PermissionsConfig
-
+import com.gu.permissions.{PermissionsConfig, PermissionsProvider}
 
 class AppComponents(context: Context) extends BuiltInComponentsFromContext(context: Context) with HttpFiltersComponents with AssetsComponents with CORSComponents {
 
@@ -28,7 +26,7 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
     PermissionsProvider(PermissionsConfig(
       stage = permissionsStage,
       region = S3UploadAppConfig.region,
-      awsCredentials = S3UploadAppConfig.awsCredentials)
+      awsCredentials = S3UploadAppConfig.credentialsProvider)
     )
   }
 
