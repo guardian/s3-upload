@@ -4,10 +4,11 @@ import java.io.{File, FileNotFoundException}
 import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.auth.credentials
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain
+import software.amazon.awssdk.regions.{Region => AWSRegion}
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import scala.io.Source
 import scala.util.Try
 
@@ -15,16 +16,22 @@ trait Config {
   // config properties required for each new app using the S3-Uploader
   val bucketName: String
   val region: String
-  val s3Client: AmazonS3
+  val s3Client: S3Client
   def key (fileName: String): String
   val maybePrettyBaseUrl: Option[String]
 
   val properties: Map[String, String] = Try(Properties.fromPath("/etc/gu/s3-uploader.properties")).getOrElse(Map.empty)
 
-  val awsCredentials = new AWSCredentialsProviderChain(
-    new ProfileCredentialsProvider("media-service"),
-    InstanceProfileCredentialsProvider.getInstance()
-  )
+  val profileName = "media-service"
+
+  lazy val credentialsProvider: AwsCredentialsProviderChain =
+    credentials.AwsCredentialsProviderChain
+      .builder()
+      .credentialsProviders(
+        credentials.ProfileCredentialsProvider.create(profileName),
+        credentials.InstanceProfileCredentialsProvider.builder().build(),
+      )
+      .build()
 
   val domain = properties.getOrElse("panda.domain", "local.dev-gutools.co.uk")
 
@@ -53,7 +60,11 @@ trait Config {
 object S3UploadAppConfig extends Config {
   val bucketName = properties.getOrElse("s3.bucket", "s3-uploader-dev-bucket")
   val region = properties.getOrElse("aws.region", "eu-west-1")
-  val s3Client = AmazonS3ClientBuilder.standard().withRegion(region).withCredentials(awsCredentials).build()
+  val s3Client: S3Client = S3Client
+    .builder()
+    .region(AWSRegion.of(region))
+    .credentialsProvider(credentialsProvider)
+    .build()
   val maybePrettyBaseUrl = properties.get("prettyBaseUrl")
 
   def key(fileName: String) = {
@@ -68,7 +79,11 @@ object S3UploadAppConfig extends Config {
 object ChartsToolConfig extends Config {
   val bucketName = properties.getOrElse("s3.chartBucket", "gdn-cdn")
   val region = properties.getOrElse("aws.chartRegion", "us-east-1")
-  val s3Client = AmazonS3ClientBuilder.standard().withRegion(region).withCredentials(awsCredentials).build()
+  val s3Client: S3Client = S3Client
+    .builder()
+    .region(AWSRegion.of(region))
+    .credentialsProvider(credentialsProvider)
+    .build()
   val maybePrettyBaseUrl = if (stage == "PROD") Some("https://interactive.guim.co.uk") else None
 
   def key(fileName: String) = {
