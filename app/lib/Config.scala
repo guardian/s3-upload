@@ -28,7 +28,7 @@ trait Config {
     credentials.AwsCredentialsProviderChain
       .builder()
       .credentialsProviders(
-        credentials.ProfileCredentialsProvider.create(ProfileName),
+        credentials.ProfileCredentialsProvider.create(profileName),
         credentials.InstanceProfileCredentialsProvider.builder().build(),
       )
       .build()
