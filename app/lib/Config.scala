@@ -22,7 +22,7 @@ trait Config {
 
   val properties: Map[String, String] = Try(Properties.fromPath("/etc/gu/s3-uploader.properties")).getOrElse(Map.empty)
 
-  val ProfileName = "media-service"
+  val profileName = "media-service"
 
   lazy val credentialsProvider: AwsCredentialsProviderChain =
     credentials.AwsCredentialsProviderChain
