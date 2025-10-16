@@ -59,9 +59,6 @@ class S3Actions() {
         if (setPublicAcl) {
           requestBuilder.contentType("text/html").acl(ObjectCannedACL.PUBLIC_READ)
         }
-        else {
-          requestBuilder.contentType("text/html")
-        }
         val request = requestBuilder.build()
 
         config.s3Client.putObject(request, RequestBody.fromFile(file.toPath)) match {
