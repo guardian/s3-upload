@@ -13,8 +13,8 @@ scalacOptions := Seq(
 
 libraryDependencies ++= Seq(
   ws, filters,
-  "software.amazon.awssdk" % "s3" % "2.50.3",
-  "com.gu" %% "pan-domain-auth-verification" % "21.0.0",
+  "software.amazon.awssdk" % "s3" % "2.55.1",
+  "com.gu" %% "pan-domain-auth-verification" % "22.0.0",
   "com.gu" %% "editorial-permissions-client" % "8.0.0",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.21.4",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.4"
