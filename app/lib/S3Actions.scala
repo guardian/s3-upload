@@ -2,6 +2,7 @@ package lib
 
 import java.io.File
 import java.net.URI
+import java.util.Locale
 import software.amazon.awssdk.services.s3.S3Client
 import com.gu.pandomainauth.model.User
 import play.api.libs.json.{JsPath, JsString, Writes}
@@ -48,6 +49,13 @@ object S3UploadResponse {
 
 class S3Actions() {
   private val s3NotFoundStatusList = List(403, 404)
+  private val imageContentTypes = Map(
+    "jpg" -> "image/jpeg",
+    "jpeg" -> "image/jpeg",
+    "png" -> "image/png",
+    "gif" -> "image/gif",
+    "webp" -> "image/webp"
+  )
 
   def upload(file: File, fileName: String, user: User, config: Config, setPublicAcl: Boolean): S3UploadResponse = {
 
@@ -58,6 +66,8 @@ class S3Actions() {
 
         if (setPublicAcl) {
           requestBuilder.contentType("text/html").acl(ObjectCannedACL.PUBLIC_READ)
+        } else {
+          imageContentType(fileName).foreach(requestBuilder.contentType)
         }
         val request = requestBuilder.build()
 
@@ -67,8 +77,14 @@ class S3Actions() {
         }
 
       }
-      case _ => S3UploadFailure(None, Some(file.getName), Some("File with that name already exists"))
+      case _ => S3UploadFailure(None, Some(fileName), Some("File with that name already exists"))
     }
+  }
+
+  private def imageContentType(fileName: String): Option[String] = {
+    val extensionStart = fileName.lastIndexOf('.')
+    if (extensionStart < 0) None
+    else imageContentTypes.get(fileName.substring(extensionStart + 1).toLowerCase(Locale.ROOT))
   }
 
   def getObject(key: String, bucketName: String, s3Client: S3Client) = {
