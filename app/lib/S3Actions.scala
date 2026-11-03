@@ -49,12 +49,12 @@ object S3UploadResponse {
 class S3Actions() {
   private val s3NotFoundStatusList = List(403, 404)
 
-  def upload(file: File, user: User, config: Config, setPublicAcl: Boolean): S3UploadResponse = {
+  def upload(file: File, fileName: String, user: User, config: Config, setPublicAcl: Boolean): S3UploadResponse = {
 
-    getObject(config.key(file.getName), config.bucketName, config.s3Client) match {
+    getObject(config.key(fileName), config.bucketName, config.s3Client) match {
       case None => {
         val metadata = Map("author" -> user.email)
-        val requestBuilder = PutObjectRequest.builder().bucket(config.bucketName).key(config.key(file.getName)).metadata(metadata.asJava)
+        val requestBuilder = PutObjectRequest.builder().bucket(config.bucketName).key(config.key(fileName)).metadata(metadata.asJava)
 
         if (setPublicAcl) {
           requestBuilder.contentType("text/html").acl(ObjectCannedACL.PUBLIC_READ)
@@ -63,7 +63,7 @@ class S3Actions() {
 
         config.s3Client.putObject(request, RequestBody.fromFile(file.toPath)) match {
           case _: PutObjectResponse => S3UploadResponse.buildSuccess(request, config)
-          case _ => S3UploadFailure(None, Some(file.getName), Some("Upload Failed"))
+          case _ => S3UploadFailure(None, Some(fileName), Some("Upload Failed"))
         }
 
       }
@@ -80,4 +80,3 @@ class S3Actions() {
   }
 
 }
-
