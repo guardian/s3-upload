@@ -1,0 +1,26 @@
+@import com.gu.pandomainauth.model.User
+@import lib.PublishedInteractive
+@(user: User, published: PublishedInteractive)(implicit request: RequestHeader)
+
+@main(user, "Interactive uploaded") {
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--12-col">
+            <h1>Interactive uploaded</h1>
+            <p>Share URL: <a href="@published.url">@published.url</a></p>
+            <h2>Embed code</h2>
+            <p>Adjust the height to suit your interactive.</p>
+            <textarea readonly aria-label="Embed code" rows="3" style="width:100%">&lt;iframe src="@published.url" title="Interactive" width="100%" height="500" frameborder="0"&gt;&lt;/iframe&gt;</textarea>
+            <h2>Mobile preview</h2>
+            <iframe src="@published.url" title="Mobile preview" width="375" height="600" style="max-width:100%;border:1px solid #ccc" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" loading="lazy"></iframe>
+            <h2>Desktop preview</h2>
+            <iframe src="@published.url" title="Desktop preview" width="1000" height="600" style="max-width:100%;border:1px solid #ccc" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" loading="lazy"></iframe>
+            <h2>Uploaded files</h2>
+            <ul>
+                @published.files.map { case (name, url) =>
+                    <li><a href="@url">@name</a></li>
+                }
+            </ul>
+            <p><a href="@routes.Application.interactive">Upload another interactive</a></p>
+        </div>
+    </div>
+}

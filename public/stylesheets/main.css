@@ -93,3 +93,17 @@
 .upload-error--hidden {
     display: none;
 }
+.interactive-error {
+    color: #a00;
+    font-weight: bold;
+}
+
+#interactive-drop {
+    border: 2px dashed #607d8b;
+    padding: 24px;
+}
+
+#interactive-files {
+    max-height: 250px;
+    overflow: auto;
+}

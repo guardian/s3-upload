@@ -92,3 +92,15 @@ object ChartsToolConfig extends Config {
     s"charts/embed/${dateFormat.format(now).toLowerCase}/embed.html"
   }
 }
+
+object InteractiveToolConfig extends Config {
+  val bucketName = properties.getOrElse("s3.interactiveBucket", ChartsToolConfig.bucketName)
+  val region = properties.getOrElse("aws.interactiveRegion", ChartsToolConfig.region)
+  val s3Client: S3Client = S3Client.builder()
+    .region(AWSRegion.of(region)).credentialsProvider(credentialsProvider).build()
+  val maybePrettyBaseUrl = properties.get("interactiveBaseUrl").orElse {
+    if (bucketName == "gdn-cdn") Some("https://interactive.guim.co.uk") else None
+  }
+  val prefix = properties.getOrElse("interactivePrefix", if (stage == "PROD") "uploader/embed" else "uploader/code/embed").stripPrefix("/").stripSuffix("/")
+  def key(fileName: String): String = s"$prefix/$fileName"
+}

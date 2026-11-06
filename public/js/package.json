@@ -11,6 +11,7 @@
   "private": true,
   "prefix": "public/js",
   "dependencies": {
+    "jszip": "^3.10.1",
     "material-design-lite": "^1.0.6"
   }
 }
