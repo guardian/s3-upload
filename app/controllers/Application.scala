@@ -5,7 +5,6 @@ import java.nio.file.{Files, Paths}
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.Logging
 
 import org.apache.pekko.stream.Materializer
 import com.gu.pandomainauth.PublicSettings
@@ -16,12 +15,11 @@ import com.gu.permissions.PermissionsProvider
 
 class Application(
   s3Actions: S3Actions,
-  interactivePublisher: InteractivePublisher,
   interactiveExecutionContext: ExecutionContext,
   override val publicSettings: PublicSettings,
   override val permissions: PermissionsProvider,
   override val controllerComponents: ControllerComponents
-)(implicit mat: Materializer) extends PandaController with Logging {
+)(implicit mat: Materializer) extends PandaController {
 
   def interactive = AuthAction { request =>
     Ok(views.html.interactive(request.user, None)(request))
@@ -38,10 +36,10 @@ class Application(
             case Seq(file) if file.key == "zipfile" && file.filename.toLowerCase(java.util.Locale.ROOT).endsWith(".zip") =>
               val project = form.dataParts.get("projectName").flatMap(_.headOption).filter(_.trim.nonEmpty).getOrElse(file.filename)
               try {
-                val published = interactivePublisher.publish(file.ref.path, project, request.user.email)
-                Ok(views.html.interactiveUploaded(request.user, published)(request))
+                val published = s3Actions.uploadInteractive(file.ref.path, project, request.user.email, InteractiveToolConfig, controllerComponents.fileMimeTypes)
+                Ok(views.html.uploaded(request.user, Seq(published))(request))
               } catch {
-                case e: InvalidInteractive => invalid(e.getMessage)
+                case e: java.util.zip.ZipException => invalid(e.getMessage)
                 case scala.util.control.NonFatal(e) =>
                   logger.error("Unable to publish interactive", e)
                   InternalServerError(views.html.interactive(request.user, Some("Upload failed. Please try again; if it persists, contact the tools team."))(request))

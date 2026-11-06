@@ -94,13 +94,14 @@ object ChartsToolConfig extends Config {
 }
 
 object InteractiveToolConfig extends Config {
-  val bucketName = properties.getOrElse("s3.interactiveBucket", ChartsToolConfig.bucketName)
-  val region = properties.getOrElse("aws.interactiveRegion", ChartsToolConfig.region)
-  val s3Client: S3Client = S3Client.builder()
-    .region(AWSRegion.of(region)).credentialsProvider(credentialsProvider).build()
-  val maybePrettyBaseUrl = properties.get("interactiveBaseUrl").orElse {
-    if (bucketName == "gdn-cdn") Some("https://interactive.guim.co.uk") else None
+  val bucketName = ChartsToolConfig.bucketName
+  val region = ChartsToolConfig.region
+  val s3Client = ChartsToolConfig.s3Client
+  val maybePrettyBaseUrl = if (bucketName == "gdn-cdn") Some("https://interactive.guim.co.uk") else ChartsToolConfig.maybePrettyBaseUrl
+
+  def key(fileName: String): String = {
+    val prefix = if (stage == "PROD") "uploader/embed" else "uploader/code/embed"
+    val date = java.time.LocalDate.now(java.time.ZoneOffset.UTC).format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM"))
+    s"$prefix/$date/$fileName"
   }
-  val prefix = properties.getOrElse("interactivePrefix", if (stage == "PROD") "uploader/embed" else "uploader/code/embed").stripPrefix("/").stripSuffix("/")
-  def key(fileName: String): String = s"$prefix/$fileName"
 }

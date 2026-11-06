@@ -1,6 +1,6 @@
 import com.gu.pandomainauth.PublicSettings
 import controllers.{Application, AssetsComponents, Management}
-import lib.{InteractivePublisher, InteractiveToolConfig, S3Actions, S3UploadAppConfig}
+import lib.{S3Actions, S3UploadAppConfig}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.mvc.EssentialFilter
@@ -32,7 +32,6 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
 
   val api = new Application(
     s3Actions,
-    new InteractivePublisher(InteractiveToolConfig),
     actorSystem.dispatchers.lookup("interactive-upload-dispatcher"),
     publicSettings,
     permissions,
