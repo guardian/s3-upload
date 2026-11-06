@@ -30,7 +30,13 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
     )
   }
 
-  val api = new Application(s3Actions, publicSettings, permissions, controllerComponents)
+  val api = new Application(
+    s3Actions,
+    actorSystem.dispatchers.lookup("interactive-upload-dispatcher"),
+    publicSettings,
+    permissions,
+    controllerComponents
+  )
   val management = new Management(controllerComponents)
 
   val disabledFilters: Set[EssentialFilter] = Set(allowedHostsFilter)

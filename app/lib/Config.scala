@@ -92,3 +92,16 @@ object ChartsToolConfig extends Config {
     s"charts/embed/${dateFormat.format(now).toLowerCase}/embed.html"
   }
 }
+
+object InteractiveToolConfig extends Config {
+  val bucketName = ChartsToolConfig.bucketName
+  val region = ChartsToolConfig.region
+  val s3Client = ChartsToolConfig.s3Client
+  val maybePrettyBaseUrl = if (bucketName == "gdn-cdn") Some("https://interactive.guim.co.uk") else ChartsToolConfig.maybePrettyBaseUrl
+
+  def key(fileName: String): String = {
+    val prefix = if (stage == "PROD") "uploader/embed" else "uploader/code/embed"
+    val date = java.time.LocalDate.now(java.time.ZoneOffset.UTC).format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM"))
+    s"$prefix/$date/$fileName"
+  }
+}

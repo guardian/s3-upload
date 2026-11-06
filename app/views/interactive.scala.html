@@ -1,0 +1,18 @@
+@import com.gu.pandomainauth.model.User
+@(user: User, error: Option[String])(implicit request: RequestHeader)
+
+@main(user, "Upload interactive") {
+    <div class="mdl-grid"><div class="mdl-cell mdl-cell--12-col">
+        <h1>Upload an interactive</h1>
+        <p>Choose a ZIP with index.html at its root, together with its scripts, styles and assets.</p>
+        <p>Maximum ZIP size: 50 MB. Expanded contents: 200 MB total, 50 MB per file, and 2,000 entries.</p>
+        @error.map { message => <p role="alert">@message</p> }
+        @helper.form(action = routes.Application.uploadInteractive, Symbol("enctype") -> "multipart/form-data") {
+            @helper.CSRF.formField
+            <p><label>Interactive ZIP <input type="file" name="zipfile" accept=".zip" required></label></p>
+            <p><label>Project name <input type="text" name="projectName" maxlength="80" placeholder="Defaults to ZIP filename"></label></p>
+            <p>Each upload creates a new public URL. Uploaded files will be publicly accessible.</p>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">Upload interactive</button>
+        }
+    </div></div>
+}
