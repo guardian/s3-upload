@@ -11,6 +11,8 @@ import software.amazon.awssdk.auth.credentials
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain
 import software.amazon.awssdk.regions.{Region => AWSRegion}
 
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, ZoneOffset}
 import scala.io.Source
 import scala.util.Try
 
@@ -91,6 +93,8 @@ trait InteractivesConfig extends Config {
     .credentialsProvider(credentialsProvider)
     .build()
   val maybePrettyBaseUrl: Option[String] = if (stage == "PROD") Some("https://interactive.guim.co.uk") else S3UploadAppConfig.maybePrettyBaseUrl
+
+  // TODO: Setup fastly to auth with gdn-cdn bucket and remove public access
   val setPublicAcl: Boolean = isProd
 }
 
@@ -104,8 +108,7 @@ object ChartsToolConfig extends InteractivesConfig {
 
 object InteractiveUploaderConfig extends InteractivesConfig {
   def key(fileName: String): String = {
-    val prefix = if (stage == "PROD") "uploader/embed" else "uploader/code/embed"
-    val date = java.time.LocalDate.now(java.time.ZoneOffset.UTC).format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM"))
-    s"$prefix/$date/$fileName"
+    val date = LocalDate.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy/MM"))
+    s"uploader/embed/$date/$fileName"
   }
 }
