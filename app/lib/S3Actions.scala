@@ -84,10 +84,12 @@ class S3Actions() {
       val prefix = config.key(s"${InteractiveZip.projectSlug(project)}/${UUID.randomUUID()}")
       // Publish index.html last, so its assets are available before we return its URL.
       val uploaded = InteractiveZip.getZippedFiles(zip).sortBy(_.getName == "index.html").map { entry =>
-        val request = PutObjectRequest.builder().bucket(config.bucketName).key(s"$prefix/${entry.getName}")
+        val baseRequest = PutObjectRequest.builder().bucket(config.bucketName).key(s"$prefix/${entry.getName}")
           .contentType(mimeTypes.forFileName(entry.getName).getOrElse("application/octet-stream"))
-          .cacheControl(s"max-age=${InteractiveZip.CACHE_CONTROL_MAX_AGE}").acl(ObjectCannedACL.PUBLIC_READ)
-          .metadata(Map("author" -> userEmail).asJava).build()
+          .cacheControl(s"max-age=${InteractiveZip.CACHE_CONTROL_MAX_AGE}")
+          .metadata(Map("author" -> userEmail).asJava)
+        val requestWithAcl = if (config.setPublicAcl) baseRequest.acl(ObjectCannedACL.PUBLIC_READ) else baseRequest
+        val request = requestWithAcl.build()
         config.s3Client.putObject(request, RequestBody.fromBytes(InteractiveZip.readFileFromZip(zip, entry)))
         request
       }

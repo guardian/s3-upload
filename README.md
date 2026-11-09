@@ -45,15 +45,6 @@ For CODE and PROD, it is in S3 in the `media-service` account
 
 Visit `/interactive` (including `https://s3-uploader.code.dev-gutools.co.uk/interactive`
 after CODE deployment) and upload a ZIP with `index.html` at its root. The existing
-`s3_uploader_access` permission applies. The result is a public URL to `index.html`;
-asset folders are preserved and each upload gets a unique project URL.
+`s3_uploader_access` permission applies. The result is a public URL to `index.html`
 
-Uploads reuse the Charts bucket and credentials. PROD uses `uploader/embed/YYYY/MM/`;
-CODE/DEV use `uploader/code/embed/YYYY/MM/`. The ZIP request limit is 50 MB, with at
-most 2,000 entries, 50 MB per expanded file, and 200 MB total expanded content.
-Files are read directly from the ZIP; no extraction directory is created.
-
-Before deploying, check the external IAM/bucket policies allow `s3:PutObject` and
-`s3:PutObjectAcl` for that prefix and the CDN can serve it. A failed upload may leave
-assets under its unique prefix; it returns no success URL and does not affect earlier
-uploads. Run `sbt test` and smoke-test an HTML/CSS/JS bundle on CODE.
+PROD uses `uploader/embed/YYYY/MM/` CODE/DEV use `uploader/code/embed/YYYY/MM/`.

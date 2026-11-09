@@ -44,7 +44,7 @@ class Application(
           val temporaryFilePath = Paths.get(s"/tmp/${f.filename}")
           f.ref.moveTo(temporaryFilePath, replace = true)
 
-          val res = s3Actions.upload(temporaryFilePath.toFile, request.user, ChartsToolConfig, setPublicAcl = true)
+          val res = s3Actions.upload(temporaryFilePath.toFile, request.user, ChartsToolConfig, ChartsToolConfig.setPublicAcl)
           Files.delete(temporaryFilePath)
           res
         }
@@ -99,7 +99,7 @@ class Application(
             case Seq(file) if file.key == INTERACTIVE_ZIP_INPUT_NAME && file.filename.toLowerCase().endsWith(".zip") =>
               val projectName = form.dataParts.get("projectName").flatMap(_.headOption).filter(_.trim.nonEmpty).getOrElse(file.filename)
               try {
-                val published = s3Actions.uploadInteractiveZip(file.ref.path, projectName, request.user.email, InteractiveToolConfig, controllerComponents.fileMimeTypes)
+                val published = s3Actions.uploadInteractiveZip(file.ref.path, projectName, request.user.email, InteractiveUploaderConfig, controllerComponents.fileMimeTypes)
                 Ok(views.html.uploaded(request.user, Seq(published))(request))
               } catch {
                 case e: ZipException => badRequestError(e.getMessage)

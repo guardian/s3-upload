@@ -1,5 +1,7 @@
 package lib
 
+import lib.S3UploadAppConfig.properties
+
 import java.io.{File, FileNotFoundException}
 import java.net.URI
 import java.text.SimpleDateFormat
@@ -19,10 +21,12 @@ trait Config {
   val s3Client: S3Client
   def key (fileName: String): String
   val maybePrettyBaseUrl: Option[String]
+  val setPublicAcl: Boolean
 
   val properties: Map[String, String] = Try(Properties.fromPath("/etc/gu/s3-uploader.properties")).getOrElse(Map.empty)
 
   val profileName = "media-service"
+
 
   lazy val credentialsProvider: AwsCredentialsProviderChain =
     credentials.AwsCredentialsProviderChain
@@ -66,6 +70,7 @@ object S3UploadAppConfig extends Config {
     .credentialsProvider(credentialsProvider)
     .build()
   val maybePrettyBaseUrl = properties.get("prettyBaseUrl")
+  val setPublicAcl = false
 
   def key(fileName: String) = {
     val now = Calendar.getInstance().getTime
@@ -75,18 +80,21 @@ object S3UploadAppConfig extends Config {
   }
 }
 
-trait GdnCdnConfig extends Config {
-  val bucketName: String = properties.getOrElse("s3.chartBucket", "gdn-cdn")
-  val region: String = properties.getOrElse("aws.chartRegion", "us-east-1")
+trait InteractivesConfig extends Config {
+  // There is no gdn-cdn CODE bucket so in CODE, so we fall back to the standard s3 uploader buckets
+  val isProd = stage == "PROD"
+  val bucketName: String = if (isProd) properties.getOrElse("s3.chartBucket", "gdn-cdn") else S3UploadAppConfig.bucketName
+  val region: String = if (isProd) properties.getOrElse("aws.chartRegion", "us-east-1") else S3UploadAppConfig.region
   val s3Client: S3Client = S3Client
     .builder()
     .region(AWSRegion.of(region))
     .credentialsProvider(credentialsProvider)
     .build()
-  val maybePrettyBaseUrl: Option[String] = if (stage == "PROD") Some("https://interactive.guim.co.uk") else None
+  val maybePrettyBaseUrl: Option[String] = if (stage == "PROD") Some("https://interactive.guim.co.uk") else S3UploadAppConfig.maybePrettyBaseUrl
+  val setPublicAcl: Boolean = isProd
 }
 
-object ChartsToolConfig extends GdnCdnConfig {
+object ChartsToolConfig extends InteractivesConfig {
   def key(fileName: String): String = {
     val now = Calendar.getInstance().getTime
     val dateFormat = new SimpleDateFormat("MMM/yyyy-MM-dd-hh:mm:ss")
@@ -94,7 +102,7 @@ object ChartsToolConfig extends GdnCdnConfig {
   }
 }
 
-object InteractiveToolConfig extends GdnCdnConfig {
+object InteractiveUploaderConfig extends InteractivesConfig {
   def key(fileName: String): String = {
     val prefix = if (stage == "PROD") "uploader/embed" else "uploader/code/embed"
     val date = java.time.LocalDate.now(java.time.ZoneOffset.UTC).format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM"))
