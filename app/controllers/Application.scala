@@ -100,7 +100,7 @@ class Application(
               val projectName = form.dataParts.get("projectName").flatMap(_.headOption).filter(_.trim.nonEmpty).getOrElse(file.filename)
               try {
                 val published = s3Actions.uploadInteractiveZip(file.ref.path, projectName, request.user.email, InteractiveUploaderConfig, controllerComponents.fileMimeTypes)
-                Ok(views.html.uploaded(request.user, Seq(published))(request))
+                Ok(views.html.uploaded(request.user, Seq(published), previewUrl = published.url)(request))
               } catch {
                 case e: ZipException => badRequestError(e.getMessage)
                 case NonFatal(e) =>
