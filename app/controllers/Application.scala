@@ -4,21 +4,19 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import org.apache.pekko.stream.Materializer
 import com.gu.pandomainauth.PublicSettings
 import lib._
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MaxSizeExceeded, MultipartFormData}
 import play.api.libs.json._
 import com.gu.permissions.PermissionsProvider
-import play.api.libs.Files
 
 import java.util.zip.ZipException
 import scala.util.control.NonFatal
 
 class Application(
   s3Actions: S3Actions,
-  interactiveExecutionContext: ExecutionContext,
   override val publicSettings: PublicSettings,
   override val permissions: PermissionsProvider,
   override val controllerComponents: ControllerComponents
@@ -101,7 +99,7 @@ class Application(
             case Seq(file) if file.key == INTERACTIVE_ZIP_INPUT_NAME && file.filename.toLowerCase().endsWith(".zip") =>
               val projectName = form.dataParts.get("projectName").flatMap(_.headOption).filter(_.trim.nonEmpty).getOrElse(file.filename)
               try {
-                val published = s3Actions.uploadInteractive(file.ref.path, projectName, request.user.email, InteractiveToolConfig, controllerComponents.fileMimeTypes)
+                val published = s3Actions.uploadInteractiveZip(file.ref.path, projectName, request.user.email, InteractiveToolConfig, controllerComponents.fileMimeTypes)
                 Ok(views.html.uploaded(request.user, Seq(published))(request))
               } catch {
                 case e: ZipException => badRequestError(e.getMessage)
@@ -114,7 +112,7 @@ class Application(
             case _ => badRequestError("Choose one ZIP file containing your interactive.")
           }
       }
-    }(interactiveExecutionContext)
+    }(controllerComponents.executionContext)
   }
 }
 

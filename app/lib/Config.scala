@@ -76,14 +76,14 @@ object S3UploadAppConfig extends Config {
 }
 
 trait GdnCdnConfig extends Config {
-  val bucketName = properties.getOrElse("s3.chartBucket", "gdn-cdn")
-  val region = properties.getOrElse("aws.chartRegion", "us-east-1")
+  val bucketName: String = properties.getOrElse("s3.chartBucket", "gdn-cdn")
+  val region: String = properties.getOrElse("aws.chartRegion", "us-east-1")
   val s3Client: S3Client = S3Client
     .builder()
     .region(AWSRegion.of(region))
     .credentialsProvider(credentialsProvider)
     .build()
-  val maybePrettyBaseUrl = if (stage == "PROD") Some("https://interactive.guim.co.uk") else None
+  val maybePrettyBaseUrl: Option[String] = if (stage == "PROD") Some("https://interactive.guim.co.uk") else None
 }
 
 object ChartsToolConfig extends GdnCdnConfig {

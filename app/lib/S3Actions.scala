@@ -79,7 +79,7 @@ class S3Actions() {
     }
   }
 
-  def uploadInteractive(archive: Path, project: String, userEmail: String, config: Config, mimeTypes: FileMimeTypes): S3UploadSuccess = {
+  def uploadInteractiveZip(archive: Path, project: String, userEmail: String, config: Config, mimeTypes: FileMimeTypes): S3UploadSuccess = {
     Using.resource(new ZipFile(archive.toFile)) { zip =>
       val prefix = config.key(s"${InteractiveZip.projectSlug(project)}/${UUID.randomUUID()}")
       // Publish index.html last, so its assets are available before we return its URL.

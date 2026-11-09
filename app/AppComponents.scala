@@ -32,7 +32,6 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
 
   val api = new Application(
     s3Actions,
-    actorSystem.dispatchers.lookup("interactive-upload-dispatcher"),
     publicSettings,
     permissions,
     controllerComponents
