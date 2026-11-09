@@ -93,3 +93,23 @@
 .upload-error--hidden {
     display: none;
 }
+
+.interactive-upload-form {
+    padding: 24px;
+}
+
+.interactive-upload-field {
+    margin-bottom: 24px;
+}
+
+.interactive-upload-field > label,
+.interactive-upload-field input[type="file"] {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.interactive-upload-field input[type="file"],
+.interactive-upload-field .mdl-textfield {
+    width: 100%;
+    min-width: 0;
+}
