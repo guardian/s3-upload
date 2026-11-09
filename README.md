@@ -43,8 +43,5 @@ For CODE and PROD, it is in S3 in the `media-service` account
 
 ### Uploading interactives
 
-Visit `/interactive` (including `https://s3-uploader.code.dev-gutools.co.uk/interactive`
-after CODE deployment) and upload a ZIP with `index.html` at its root. The existing
-`s3_uploader_access` permission applies. The result is a public URL to `index.html`
-
-PROD uses `uploader/embed/YYYY/MM/` CODE/DEV use `uploader/code/embed/YYYY/MM/`.
+Visit `/interactive` and upload a ZIP with `index.html` at its root. The result is a public URL to `index.html` on the
+interactives CDN endpoint.
