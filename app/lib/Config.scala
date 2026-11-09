@@ -75,8 +75,7 @@ object S3UploadAppConfig extends Config {
   }
 }
 
-
-object ChartsToolConfig extends Config {
+trait GdnCdnConfig extends Config {
   val bucketName = properties.getOrElse("s3.chartBucket", "gdn-cdn")
   val region = properties.getOrElse("aws.chartRegion", "us-east-1")
   val s3Client: S3Client = S3Client
@@ -85,20 +84,17 @@ object ChartsToolConfig extends Config {
     .credentialsProvider(credentialsProvider)
     .build()
   val maybePrettyBaseUrl = if (stage == "PROD") Some("https://interactive.guim.co.uk") else None
+}
 
-  def key(fileName: String) = {
+object ChartsToolConfig extends GdnCdnConfig {
+  def key(fileName: String): String = {
     val now = Calendar.getInstance().getTime
     val dateFormat = new SimpleDateFormat("MMM/yyyy-MM-dd-hh:mm:ss")
     s"charts/embed/${dateFormat.format(now).toLowerCase}/embed.html"
   }
 }
 
-object InteractiveToolConfig extends Config {
-  val bucketName = ChartsToolConfig.bucketName
-  val region = ChartsToolConfig.region
-  val s3Client = ChartsToolConfig.s3Client
-  val maybePrettyBaseUrl = if (bucketName == "gdn-cdn") Some("https://interactive.guim.co.uk") else ChartsToolConfig.maybePrettyBaseUrl
-
+object InteractiveToolConfig extends GdnCdnConfig {
   def key(fileName: String): String = {
     val prefix = if (stage == "PROD") "uploader/embed" else "uploader/code/embed"
     val date = java.time.LocalDate.now(java.time.ZoneOffset.UTC).format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM"))
