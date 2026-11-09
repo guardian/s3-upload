@@ -24,7 +24,7 @@ trait PandaController extends BaseControllerHelpers with Logging {
   val S3UploaderAccess = PermissionDefinition("s3_uploader_access", "s3-uploader")
 
   def unauthenticatedResponse[A](request: Request[A]) = {
-    Future.successful(Unauthorized(views.html.login(S3UploadAppConfig.loginUri)(request)))
+    Future.successful(Unauthorized(views.html.login(S3UploadAppConfig.loginUri(request.uri))(request)))
   }
 
   def unauthorisedResponse[A](request: Request[A]) = {

@@ -3,7 +3,8 @@ package lib
 import lib.S3UploadAppConfig.properties
 
 import java.io.{File, FileNotFoundException}
-import java.net.URI
+import java.net.{URI, URLEncoder}
+import java.nio.charset.StandardCharsets.UTF_8
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import software.amazon.awssdk.services.s3.S3Client
@@ -41,7 +42,10 @@ trait Config {
 
   val domain = properties.getOrElse("panda.domain", "local.dev-gutools.co.uk")
 
-  val loginUri = new URI(s"https://login.$domain/login?returnUrl=https://s3-uploader.$domain")
+  def loginUri(requestUri: String): URI = {
+    val returnUrl = URLEncoder.encode(s"https://s3-uploader.$domain/${requestUri.stripPrefix("/")}", UTF_8)
+    new URI(s"https://login.$domain/login?returnUrl=$returnUrl")
+  }
 
   val pinboardLoaderUrl = new URI(s"https://pinboard.$domain/pinboard.loader.js")
 
