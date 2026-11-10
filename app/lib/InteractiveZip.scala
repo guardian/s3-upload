@@ -1,6 +1,8 @@
 package lib
 
-import java.util.Locale
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, ZoneOffset}
+import java.util.{Date, Locale}
 import java.util.zip.{ZipEntry, ZipException, ZipFile}
 import scala.jdk.CollectionConverters._
 import scala.util.Using
@@ -11,11 +13,17 @@ object InteractiveZip {
   val MAX_FILE_SIZE: Int = 50 * 1024 * 1024 // 50mb
   val MAX_EXPANDED_ZIP_SIZE: Long = 200L * 1024 * 1024 // 200mb
   val CACHE_CONTROL_MAX_AGE = 604800 // 7 days
+  val MAX_SLUG_LENGTH = 80
+  val INTERACTIVE_ZIP_INPUT_NAME = "zipfile" // must match what's used in interactive.scala.html
+  val INTERACTIVE_PROJECT_NAME_INPUT_NAME = "projectName" // must match what's used in interactive.scala.html
+
+  private val dateToday = LocalDate.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+  private val DEFAULT_SLUG = s"interactive-upload-$dateToday"
 
   def projectSlug(name: String): String = {
     val slug = name.toLowerCase(Locale.ROOT).trim.stripSuffix(".zip")
-      .replaceAll("[^a-z0-9_-]+", "-").stripPrefix("-").stripSuffix("-").take(80)
-    if (slug.isEmpty) "visual" else slug
+      .replaceAll("[^a-z0-9_-]+", "-").stripPrefix("-").stripSuffix("-").take(MAX_SLUG_LENGTH)
+    if (slug.isEmpty) DEFAULT_SLUG else slug
   }
 
   def containsUnsafeChars(path: String): Boolean = {

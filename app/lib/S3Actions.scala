@@ -2,14 +2,11 @@ package lib
 
 import java.io.File
 import java.net.URI
-<<<<<<< HEAD
-=======
 import java.util.{Locale, UUID}
 import java.nio.file.Path
 import java.util.zip.ZipFile
 import play.api.http.FileMimeTypes
 import scala.util.Using
->>>>>>> 27bdd2e (Tell codex to chill out a bit)
 import software.amazon.awssdk.services.s3.S3Client
 import com.gu.pandomainauth.model.User
 import play.api.libs.json.{JsPath, JsString, Writes}
@@ -82,8 +79,12 @@ class S3Actions() {
   def uploadInteractiveZip(archive: Path, project: String, userEmail: String, config: Config, mimeTypes: FileMimeTypes): S3UploadSuccess = {
     Using.resource(new ZipFile(archive.toFile)) { zip =>
       val prefix = config.key(s"${InteractiveZip.projectSlug(project)}/${UUID.randomUUID()}")
-      // Publish index.html last, so its assets are available before we return its URL.
-      val uploaded = InteractiveZip.getZippedFiles(zip).sortBy(_.getName == "index.html").map { entry =>
+      val filesInZip = InteractiveZip.getZippedFiles(zip)
+      // index.html last, so if there is a partial failure then we don't end up with a half-working index.html file
+      // with missing assets
+      val (indexFiles, assets) = filesInZip.partition(_.getName == "index.html")
+      val ordered = assets ++ indexFiles
+      val uploaded = ordered.map { entry =>
         val baseRequest = PutObjectRequest.builder().bucket(config.bucketName).key(s"$prefix/${entry.getName}")
           .contentType(mimeTypes.forFileName(entry.getName).getOrElse("application/octet-stream"))
           .cacheControl(s"max-age=${InteractiveZip.CACHE_CONTROL_MAX_AGE}")
