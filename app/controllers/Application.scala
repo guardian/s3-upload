@@ -38,14 +38,12 @@ class Application(
 
       case Right(multipartForm) => {
         val uploads : Seq[S3UploadResponse] = multipartForm.files.map { f =>
-          val uploadFileName = Paths.get(s"/tmp/${f.filename}").getFileName.toString
-          val temporaryFilePath = Files.createTempFile("s3-upload-", ".tmp")
-          try {
-            f.ref.moveTo(temporaryFilePath, replace = true)
-            s3Actions.upload(temporaryFilePath.toFile, uploadFileName, request.user, ChartsToolConfig, setPublicAcl = true)
-          } finally {
-            Files.deleteIfExists(temporaryFilePath)
-          }
+          val temporaryFilePath = Paths.get(s"/tmp/${f.filename}")
+          f.ref.moveTo(temporaryFilePath, replace = true)
+
+          val res = s3Actions.upload(temporaryFilePath.toFile, request.user, ChartsToolConfig, setPublicAcl = true)
+          Files.delete(temporaryFilePath)
+          res
         }
 
         uploads.head match {
@@ -67,14 +65,12 @@ class Application(
 
       case Right(multipartForm) => {
         val uploads : Seq[S3UploadResponse] = multipartForm.files.map { f =>
-          val uploadFileName = Paths.get(s"/tmp/${f.filename}").getFileName.toString
-          val temporaryFilePath = Files.createTempFile("s3-upload-", ".tmp")
-          try {
-            f.ref.moveTo(temporaryFilePath, replace = true)
-            s3Actions.upload(temporaryFilePath.toFile, uploadFileName, request.user, S3UploadAppConfig, setPublicAcl = false)
-          } finally {
-            Files.deleteIfExists(temporaryFilePath)
-          }
+          val temporaryFilePath = Paths.get(s"/tmp/${f.filename}")
+          f.ref.moveTo(temporaryFilePath, replace = true)
+
+          val res = s3Actions.upload(temporaryFilePath.toFile, request.user, S3UploadAppConfig, setPublicAcl = false)
+          Files.delete(temporaryFilePath)
+          res
         }
 
         Ok(views.html.uploaded(request.user, uploads)(request))
@@ -82,3 +78,4 @@ class Application(
     }
   }
 }
+
