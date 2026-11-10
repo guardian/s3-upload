@@ -16,8 +16,8 @@ import scala.jdk.CollectionConverters._
 
 sealed trait S3UploadResponse {
   def url: Option[URI]
-  def fileName : Option[String]
-  def msg  : Option[String]
+  def fileName: Option[String]
+  def msg: Option[String]
 }
 
 case class S3UploadSuccess(url: Option[URI], fileName: Option[String], msg: Option[String])
@@ -46,7 +46,8 @@ object S3UploadResponse {
     (JsPath \ "msg").writeNullable[String]
   )(unlift(S3UploadSuccess.unapply))
 
-  implicit val s3UploadFailureWrites: Writes[S3UploadFailure] = (failure: S3UploadFailure) => JsString(failure.msg.getOrElse("Something went wrong"))
+  implicit val s3UploadFailureWrites: Writes[S3UploadFailure] = (failure: S3UploadFailure) =>
+    JsString(failure.msg.getOrElse("Something went wrong"))
 }
 
 class S3Actions() {
@@ -57,35 +58,46 @@ class S3Actions() {
     user: User,
     config: Config,
     setPublicAcl: Boolean
-  ): Seq[S3UploadResponse] = files map { file =>
-    getTempPath(file.filename).fold(
-      failure => failure,
-      temporaryFilePath => {
-        file.ref.moveTo(temporaryFilePath, replace = true)
-        val result = upload(temporaryFilePath.toFile, user, config, setPublicAcl)
-        Files.delete(temporaryFilePath)
-        result
-      }
-    )
+  ): Seq[S3UploadResponse] = {
+    val base = Files.createTempDirectory(user.email)
+    files map { file =>
+      safelyCombinePaths(base, file.filename).fold(
+        failure => failure,
+        temporaryFilePath => {
+          file.ref.moveTo(temporaryFilePath, replace = true)
+          val result = upload(temporaryFilePath.toFile, user, config, setPublicAcl)
+          Files.delete(temporaryFilePath)
+          result
+        }
+      )
+    }
   }
 
-  def getTempPath(userFilename: String): Either[S3UploadFailure, Path] = {
-    val base = Paths.get("/tmp/").normalize
+  def safelyCombinePaths(base: Path, userFilename: String): Either[S3UploadFailure, Path] = {
     val path = base.resolve(userFilename).normalize
     lazy val filename = path.getFileName()
     (path, filename) match {
       case (p, _) if p.startsWith(base) => Right(p)
-      case (_, f) if f != null => Right(base.resolve(f).normalize)
-      case _ => Left(S3UploadFailure(None, Some(userFilename), Some("Invalid filename")))
+      case (_, f) if f != null =>
+        Right(base.resolve(f).normalize)
+      case _ =>
+        Left(S3UploadFailure(None, Some(userFilename), Some("Invalid filename")))
     }
   }
 
-  def upload(file: File, user: User, config: Config, setPublicAcl: Boolean): S3UploadResponse = {
-
+  def upload(
+    file: File,
+    user: User,
+    config: Config,
+    setPublicAcl: Boolean
+  ): S3UploadResponse = {
     getObject(config.key(file.getName), config.bucketName, config.s3Client) match {
       case None => {
         val metadata = Map("author" -> user.email)
-        val requestBuilder = PutObjectRequest.builder().bucket(config.bucketName).key(config.key(file.getName)).metadata(metadata.asJava)
+        val requestBuilder = PutObjectRequest.builder()
+          .bucket(config.bucketName)
+          .key(config.key(file.getName))
+          .metadata(metadata.asJava)
 
         if (setPublicAcl) {
           requestBuilder.contentType("text/html").acl(ObjectCannedACL.PUBLIC_READ)
@@ -94,21 +106,23 @@ class S3Actions() {
 
         config.s3Client.putObject(request, RequestBody.fromFile(file.toPath)) match {
           case _: PutObjectResponse => S3UploadResponse.buildSuccess(request, config)
-          case _ => S3UploadFailure(None, Some(file.getName), Some("Upload Failed"))
+          case _ =>
+            S3UploadFailure(None, Some(file.getName), Some("Upload Failed"))
         }
-
       }
-      case _ => S3UploadFailure(None, Some(file.getName), Some("File with that name already exists"))
+      case _ =>
+        S3UploadFailure(None, Some(file.getName), Some("File with that name already exists"))
     }
   }
 
   def getObject(key: String, bucketName: String, s3Client: S3Client) = {
     try {
-      s3Client.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build())
+      s3Client.getObject(
+        GetObjectRequest.builder().bucket(bucketName).key(key).build()
+      )
     } catch {
       case e: S3Exception if s3NotFoundStatusList.contains(e.statusCode()) => None
     }
   }
-
 }
 

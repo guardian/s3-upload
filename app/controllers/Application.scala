@@ -15,18 +15,16 @@ class Application(
 )(implicit mat: Materializer) extends PandaController {
 
   def index = AuthAction { request =>
-    {
-      Ok(views.html.index(request.user)(request))
-    }
+    Ok(views.html.index(request.user)(request))
   }
 
   def upload = AuthAction { request =>
-    {
-      Redirect(routes.Application.index)
-    }
+    Redirect(routes.Application.index)
   }
 
-  def uploadChart = AuthAction(parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)) { request =>
+  def uploadChart = AuthAction(
+    parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)
+  ) { request =>
     request.body match {
       case Left(MaxSizeExceeded(limit)) => {
         EntityTooLarge(views.html.tooLarge(request.user, bytesToMb(limit)))
@@ -50,7 +48,9 @@ class Application(
 
   private def bytesToMb(bytes: Long): Long = bytes / 1024 / 1024
 
-  def uploadFile = AuthAction(parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)) { request =>
+  def uploadFile = AuthAction(
+    parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)
+  ) { request =>
     request.body match {
       case Left(MaxSizeExceeded(limit)) => {
         EntityTooLarge(views.html.tooLarge(request.user, bytesToMb(limit)))

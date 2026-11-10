@@ -13,23 +13,20 @@
                     Vanity URL <a href="@url">@url</a>
                 </p>
                 <p class="success">Successfully Uploaded!</p>
-
-
             }
-            case S3UploadFailure(None, fileName, msg) => {
+            case S3UploadFailure(_, fileName, msg) => {
                 <p class="upload failure">
                     @fileName
                 </p>
                 <p class="failure">
-                   Failed To Upload
+                    Failed To Upload
                 </p>
                 <p>
                     Reason:
                     <b>
-                    @msg
+                        @msg
                     </b>
                 </p>
-
             }
         }
     </div>
