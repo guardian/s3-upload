@@ -2,8 +2,11 @@ package lib
 
 import java.io.File
 import java.net.URI
+import java.nio.file.{Files, Path, Paths}
 import software.amazon.awssdk.services.s3.S3Client
 import com.gu.pandomainauth.model.User
+import play.api.libs.Files.TemporaryFile
+import play.api.mvc.MultipartFormData.FilePart
 import play.api.libs.json.{JsPath, JsString, Writes}
 import play.api.libs.functional.syntax._
 import software.amazon.awssdk.core.sync.RequestBody
@@ -11,7 +14,7 @@ import software.amazon.awssdk.services.s3.model._
 
 import scala.jdk.CollectionConverters._
 
-trait S3UploadResponse {
+sealed trait S3UploadResponse {
   def url: Option[URI]
   def fileName : Option[String]
   def msg  : Option[String]
@@ -48,6 +51,34 @@ object S3UploadResponse {
 
 class S3Actions() {
   private val s3NotFoundStatusList = List(403, 404)
+
+  def uploadFiles(
+    files: Seq[FilePart[TemporaryFile]],
+    user: User,
+    config: Config,
+    setPublicAcl: Boolean
+  ): Seq[S3UploadResponse] = files map { file =>
+    getTempPath(file.filename).fold(
+      failure => failure,
+      temporaryFilePath => {
+        file.ref.moveTo(temporaryFilePath, replace = true)
+        val result = upload(temporaryFilePath.toFile, user, config, setPublicAcl)
+        Files.delete(temporaryFilePath)
+        result
+      }
+    )
+  }
+
+  def getTempPath(userFilename: String): Either[S3UploadFailure, Path] = {
+    val base = Paths.get("/tmp/").normalize
+    val path = base.resolve(userFilename).normalize
+    lazy val filename = path.getFileName()
+    (path, filename) match {
+      case (p, _) if p.startsWith(base) => Right(p)
+      case (_, f) if f != null => Right(base.resolve(f).normalize)
+      case _ => Left(S3UploadFailure(None, Some(userFilename), Some("Invalid filename")))
+    }
+  }
 
   def upload(file: File, user: User, config: Config, setPublicAcl: Boolean): S3UploadResponse = {
 
