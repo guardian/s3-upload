@@ -17,7 +17,7 @@ object InteractiveZip {
   val INTERACTIVE_ZIP_INPUT_NAME = "zipfile" // must match what's used in interactive.scala.html
   val INTERACTIVE_PROJECT_NAME_INPUT_NAME = "projectName" // must match what's used in interactive.scala.html
 
-  private val dateToday = LocalDate.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+  private def dateToday: String = LocalDate.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
   private val DEFAULT_SLUG = s"interactive-upload-$dateToday"
 
   def bytesToMb(bytes: Long): Long = bytes / 1024 / 1024

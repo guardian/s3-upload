@@ -1,6 +1,8 @@
 package controllers
 
+import java.io.EOFException
 import java.nio.file.{Files, Paths}
+import java.util.zip.ZipException
 import org.apache.pekko.stream.Materializer
 import com.gu.pandomainauth.PublicSettings
 import lib._
@@ -9,7 +11,7 @@ import play.api.libs.json._
 import com.gu.permissions.PermissionsProvider
 import lib.InteractiveZip.{INTERACTIVE_PROJECT_NAME_INPUT_NAME, INTERACTIVE_ZIP_INPUT_NAME}
 
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success, Try}
 
 class Application(
   s3Actions: S3Actions,
@@ -98,8 +100,10 @@ class Application(
                   Ok(views.html.uploaded(request.user, Seq(published), previewUrl = published.url)(request))
                 case Success(Left(zipError)) =>
                   badRequestError(zipError.msg)
-                case _ =>
-                  logger.error("Unable to publish interactive")
+                case Failure(_: ZipException) | Failure(_: EOFException) =>
+                  badRequestError("ZIP is corrupt or incomplete. Please choose a valid ZIP file.")
+                case Failure(error) =>
+                  logger.error("Unable to publish interactive", error)
                   InternalServerError(views.html.interactive(request.user, Some("Upload failed. Please try again; if it persists, contact the tools team."))(request))
               }
             } finally {
