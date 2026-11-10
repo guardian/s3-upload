@@ -9,8 +9,7 @@ import play.api.libs.json._
 import com.gu.permissions.PermissionsProvider
 import lib.InteractiveZip.{INTERACTIVE_PROJECT_NAME_INPUT_NAME, INTERACTIVE_ZIP_INPUT_NAME}
 
-import java.util.zip.ZipException
-import scala.util.control.NonFatal
+import scala.util.{Success, Try}
 
 class Application(
   s3Actions: S3Actions,
@@ -92,15 +91,17 @@ class Application(
       case Right(form) =>
         form.files match {
           case Seq(file) if file.key == INTERACTIVE_ZIP_INPUT_NAME && file.filename.toLowerCase().endsWith(".zip") =>
-            val projectName = form.dataParts.get(INTERACTIVE_PROJECT_NAME_INPUT_NAME).flatMap(_.headOption).filter(_.trim.nonEmpty).getOrElse(file.filename)
             try {
-              val published = s3Actions.uploadInteractiveZip(file.ref.path, projectName, request.user.email, InteractiveUploaderConfig, controllerComponents.fileMimeTypes)
-              Ok(views.html.uploaded(request.user, Seq(published), previewUrl = published.url)(request))
-            } catch {
-              case e: ZipException => badRequestError(e.getMessage)
-              case NonFatal(e) =>
-                logger.error("Unable to publish interactive", e)
-                InternalServerError(views.html.interactive(request.user, Some("Upload failed. Please try again; if it persists, contact the tools team."))(request))
+              val projectName = form.dataParts.get(INTERACTIVE_PROJECT_NAME_INPUT_NAME).flatMap(_.headOption).filter(_.trim.nonEmpty).getOrElse(file.filename)
+              Try(s3Actions.uploadInteractiveZip(file.ref.path, projectName, request.user.email, InteractiveUploaderConfig, controllerComponents.fileMimeTypes)) match {
+                case Success(Right(published)) =>
+                  Ok(views.html.uploaded(request.user, Seq(published), previewUrl = published.url)(request))
+                case Success(Left(zipError)) =>
+                  badRequestError(zipError.msg)
+                case _ =>
+                  logger.error("Unable to publish interactive")
+                  InternalServerError(views.html.interactive(request.user, Some("Upload failed. Please try again; if it persists, contact the tools team."))(request))
+              }
             } finally {
               file.ref.delete()
             }
