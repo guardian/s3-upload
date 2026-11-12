@@ -40,3 +40,8 @@ For CODE and PROD, it is in S3 in the `media-service` account
 * If required, add a new route and method to handle the new request.
 * Cross account access etc can be configured at the bucket policy level in S3
   
+
+### Uploading interactives
+
+Visit `/interactive` and upload a ZIP with `index.html` at its root. The result is a public URL to `index.html` on the
+interactives CDN endpoint.

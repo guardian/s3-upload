@@ -13,6 +13,7 @@ scalacOptions := Seq(
 
 libraryDependencies ++= Seq(
   ws, filters,
+  "org.scalameta" %% "munit" % "1.0.0" % Test,
   "software.amazon.awssdk" % "s3" % "2.57.3",
   "com.gu" %% "pan-domain-auth-verification" % "22.2.0",
   "com.gu" %% "editorial-permissions-client" % "8.0.0",

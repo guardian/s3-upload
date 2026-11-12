@@ -2,8 +2,15 @@ package lib
 
 import java.io.File
 import java.net.URI
+import java.util.{Locale, UUID}
+import java.nio.file.Path
+import java.util.zip.ZipFile
+import play.api.http.FileMimeTypes
+
+import scala.util.Using
 import software.amazon.awssdk.services.s3.S3Client
 import com.gu.pandomainauth.model.User
+import lib.InteractiveZip.ZipError
 import play.api.libs.json.{JsPath, JsString, Writes}
 import play.api.libs.functional.syntax._
 import software.amazon.awssdk.core.sync.RequestBody
@@ -21,6 +28,9 @@ case class S3UploadSuccess(url: Option[URI], fileName: Option[String], msg: Opti
   extends S3UploadResponse
 
 case class S3UploadFailure(url: Option[URI], fileName: Option[String], msg: Option[String])
+  extends S3UploadResponse
+
+case class ZipUploadFailure(url: Option[URI], fileName: Option[String], msg: Option[String])
   extends S3UploadResponse
 
 object S3UploadResponse {
@@ -68,6 +78,29 @@ class S3Actions() {
 
       }
       case _ => S3UploadFailure(None, Some(file.getName), Some("File with that name already exists"))
+    }
+  }
+
+  def uploadInteractiveZip(archive: Path, project: String, userEmail: String, config: Config, mimeTypes: FileMimeTypes): Either[ZipError, S3UploadSuccess] = {
+    Using.resource(new ZipFile(archive.toFile)) { zip =>
+      val prefix = config.key(s"${InteractiveZip.projectSlug(project)}/${UUID.randomUUID()}")
+      InteractiveZip.getZippedFiles(zip).map { filesInZip =>
+        // index.html last, so if there is a partial failure then we don't end up with a half-working index.html file
+        // with missing assets
+        val (indexFiles, assets) = filesInZip.partition(_.getName == "index.html")
+        val ordered = assets ++ indexFiles
+        val uploaded = ordered.map { entry =>
+          val baseRequest = PutObjectRequest.builder().bucket(config.bucketName).key(s"$prefix/${entry.getName}")
+            .contentType(mimeTypes.forFileName(entry.getName).getOrElse("application/octet-stream"))
+            .cacheControl(s"max-age=${InteractiveZip.CACHE_CONTROL_MAX_AGE}")
+            .metadata(Map("author" -> userEmail).asJava)
+          val requestWithAcl = if (config.setPublicAcl) baseRequest.acl(ObjectCannedACL.PUBLIC_READ) else baseRequest
+          val request = requestWithAcl.build()
+          config.s3Client.putObject(request, RequestBody.fromBytes(InteractiveZip.readFileFromZip(zip, entry)))
+          request
+        }
+        S3UploadResponse.buildSuccess(uploaded.last, config)
+      }
     }
   }
 

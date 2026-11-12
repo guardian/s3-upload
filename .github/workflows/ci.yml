@@ -34,7 +34,7 @@ jobs:
         working-directory: public/js
 
       - name: SBT
-        run: sbt "clean;compile;Debian / packageBin"
+        run: sbt "clean;test;Debian / packageBin"
 
       # Make the filename produced by SBT easier.
       # TODO find out how to do this within `build.sbt`

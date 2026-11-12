@@ -1,0 +1,28 @@
+@import com.gu.pandomainauth.model.User
+@import lib.InteractiveZip
+@(user: User, error: Option[String])(implicit request: RequestHeader)
+
+@main(user, "Upload interactive") {
+    <div class="mdl-grid"><div class="mdl-cell mdl-cell--8-col mdl-cell--12-col-tablet mdl-cell--4-col-phone">
+        <h1 class="mdl-typography--headline">Upload an interactive</h1>
+        <p class="mdl-typography--body-1 mdl-color-text--grey-700">Choose a ZIP with index.html at its root, together with its scripts, styles and assets.</p>
+        @error.map { message => <p role="alert" class="mdl-color-text--red-700">@message</p> }
+        @helper.form(action = routes.Application.uploadInteractive, Symbol("enctype") -> "multipart/form-data", Symbol("class") -> "interactive-upload-form mdl-color--white mdl-shadow--2dp") {
+            @helper.CSRF.formField
+            <div class="interactive-upload-field">
+                <label for="@InteractiveZip.INTERACTIVE_ZIP_INPUT_NAME" class="mdl-typography--subhead">Interactive ZIP</label>
+                <input id="@InteractiveZip.INTERACTIVE_ZIP_INPUT_NAME" type="file" name="@InteractiveZip.INTERACTIVE_ZIP_INPUT_NAME" accept=".zip" required aria-describedby="zipfile-help">
+                <p id="zipfile-help" class="mdl-typography--caption mdl-color-text--grey-700">Maximum ZIP size: 50 MB. Expanded contents: 200 MB total, 50 MB per file, and 2,000 entries.</p>
+            </div>
+            <div class="interactive-upload-field">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input id="@InteractiveZip.INTERACTIVE_PROJECT_NAME_INPUT_NAME" class="mdl-textfield__input" type="text" name="@InteractiveZip.INTERACTIVE_PROJECT_NAME_INPUT_NAME" maxlength="80" aria-describedby="projectName-help">
+                    <label class="mdl-textfield__label" for="@InteractiveZip.INTERACTIVE_PROJECT_NAME_INPUT_NAME">Project name (optional)</label>
+                </div>
+                <p id="projectName-help" class="mdl-typography--caption mdl-color-text--grey-700">Defaults to the ZIP filename.</p>
+            </div>
+            <p class="mdl-typography--body-1 mdl-color-text--grey-700">Each upload creates a new public URL. Uploaded files will be publicly accessible.</p>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">Upload interactive</button>
+        }
+    </div></div>
+}

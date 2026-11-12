@@ -1,8 +1,9 @@
+@import java.net.URI
 @import lib.S3UploadResponse
 @import com.gu.pandomainauth.model.User
 @import lib.S3UploadSuccess
 @import lib.S3UploadFailure
-@(user: User, s3Uploads: Seq[S3UploadResponse])(implicit request: RequestHeader)
+@(user: User, s3Uploads: Seq[S3UploadResponse], previewUrl: Option[URI] = None)(implicit request: RequestHeader)
 
 @main(user, "File Uploaded") {
     <div class="results">
@@ -31,6 +32,12 @@
                 </p>
 
             }
+        }
+        @previewUrl.map { url =>
+            <h3>Mobile preview</h3>
+            <iframe src="@url" title="Interactive mobile preview" width="375" height="667"
+                style="display:block;width:375px;max-width:100%;height:auto;aspect-ratio:375 / 667;border:1px solid #ccc;box-sizing:border-box"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
         }
     </div>
 }
