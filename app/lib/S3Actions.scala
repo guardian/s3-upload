@@ -34,12 +34,12 @@ case class ZipUploadFailure(url: Option[URI], fileName: Option[String], msg: Opt
   extends S3UploadResponse
 
 object S3UploadResponse {
-  def buildSuccess(putObjectRequest: PutObjectRequest, config: Config) = {
+  def buildSuccess(putObjectRequest: PutObjectRequest, config: Config, key: String) = {
     val uri = config.maybePrettyBaseUrl match {
       case Some(prettyBaseUrl) =>
-        s"$prettyBaseUrl/${putObjectRequest.key()}"
+        s"$prettyBaseUrl/$key"
       case None =>
-        s"https://s3-eu-west-1.amazonaws.com/${putObjectRequest.bucket()}/${putObjectRequest.key()}"
+        s"https://s3-eu-west-1.amazonaws.com/${putObjectRequest.bucket()}/$key"
     }
 
     S3UploadSuccess(Some(new URI(uri)), Some(putObjectRequest.key()), None)
@@ -72,7 +72,7 @@ class S3Actions() {
         val request = requestBuilder.build()
 
         config.s3Client.putObject(request, RequestBody.fromFile(file.toPath)) match {
-          case _: PutObjectResponse => S3UploadResponse.buildSuccess(request, config)
+          case _: PutObjectResponse => S3UploadResponse.buildSuccess(request, config, request.key())
           case _ => S3UploadFailure(None, Some(file.getName), Some("Upload Failed"))
         }
 
@@ -99,7 +99,8 @@ class S3Actions() {
           config.s3Client.putObject(request, RequestBody.fromBytes(InteractiveZip.readFileFromZip(zip, entry)))
           request
         }
-        S3UploadResponse.buildSuccess(uploaded.last, config)
+        // we return the root folder location, composer will find the index.html file
+        S3UploadResponse.buildSuccess(uploaded.last, config, prefix)
       }
     }
   }
