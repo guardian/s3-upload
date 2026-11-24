@@ -91,11 +91,11 @@ class Application(
       case Left(MaxSizeExceeded(limit)) =>
         EntityTooLarge(views.html.interactive(request.user, Some(s"ZIP must be smaller than ${bytesToMb(limit)} MB."))(request))
       case Right(form) =>
-        val projectName = form.dataParts.get(INTERACTIVE_PROJECT_NAME_INPUT_NAME).flatMap(_.headOption).filter(_.trim.nonEmpty)
-        (projectName, form.files) match {
-          case (Some(name), Seq(file)) if file.key == INTERACTIVE_ZIP_INPUT_NAME && file.filename.toLowerCase().endsWith(".zip") =>
+        val maybeProjectName = form.dataParts.get(INTERACTIVE_PROJECT_NAME_INPUT_NAME).flatMap(_.headOption).filter(_.trim.nonEmpty)
+        (maybeProjectName, form.files) match {
+          case (Some(projectName), Seq(file)) if file.key == INTERACTIVE_ZIP_INPUT_NAME && file.filename.toLowerCase().endsWith(".zip") =>
             try {
-              Try(s3Actions.uploadInteractiveZip(file.ref.path, name, request.user.email, InteractiveUploaderConfig, controllerComponents.fileMimeTypes)) match {
+              Try(s3Actions.uploadInteractiveZip(file.ref.path, projectName, request.user.email, InteractiveUploaderConfig, controllerComponents.fileMimeTypes)) match {
                 case Success(Right(published)) =>
                   Ok(views.html.uploaded(request.user, Seq(published), previewUrl = published.url)(request))
                 case Success(Left(zipError)) =>

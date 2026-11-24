@@ -13,7 +13,7 @@ object InteractiveZip {
   val MAX_FILE_SIZE: Int = 50 * 1024 * 1024 // 50mb
   val MAX_EXPANDED_ZIP_SIZE: Long = 200L * 1024 * 1024 // 200mb
   val CACHE_CONTROL_MAX_AGE = 604800 // 7 days
-  val MAX_SLUG_LENGTH = 80
+  val MAX_SLUG_LENGTH = 50
   val INTERACTIVE_ZIP_INPUT_NAME = "zipfile" // must match what's used in interactive.scala.html
   val INTERACTIVE_PROJECT_NAME_INPUT_NAME = "projectName" // must match what's used in interactive.scala.html
 

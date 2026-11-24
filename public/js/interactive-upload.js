@@ -10,7 +10,7 @@ interactiveProjectNameInput.addEventListener("input", updateInteractiveUploadBut
 interactiveZipInput.addEventListener("change", () => {
     const zip = interactiveZipInput.files[0];
     if (zip) {
-        interactiveProjectNameInput.value = zip.name.replace(/\.zip$/i, "");
+        interactiveProjectNameInput.value = zip.name.replace(/\.zip$/i, "").slice(0, interactiveProjectNameInput.maxLength);
     }
     updateInteractiveUploadButton();
 });
