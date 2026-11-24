@@ -6,7 +6,7 @@ import java.util.zip.ZipException
 import org.apache.pekko.stream.Materializer
 import com.gu.pandomainauth.PublicSettings
 import lib._
-import play.api.mvc.{Action, AnyContent, ControllerComponents, MaxSizeExceeded}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, MaxSizeExceeded, Result}
 import play.api.libs.json._
 import com.gu.permissions.PermissionsProvider
 import lib.InteractiveZip.{INTERACTIVE_PROJECT_NAME_INPUT_NAME, INTERACTIVE_ZIP_INPUT_NAME}
@@ -91,11 +91,11 @@ class Application(
       case Left(MaxSizeExceeded(limit)) =>
         EntityTooLarge(views.html.interactive(request.user, Some(s"ZIP must be smaller than ${bytesToMb(limit)} MB."))(request))
       case Right(form) =>
-        form.files match {
-          case Seq(file) if file.key == INTERACTIVE_ZIP_INPUT_NAME && file.filename.toLowerCase().endsWith(".zip") =>
+        val projectName = form.dataParts.get(INTERACTIVE_PROJECT_NAME_INPUT_NAME).flatMap(_.headOption).filter(_.trim.nonEmpty)
+        (projectName, form.files) match {
+          case (Some(name), Seq(file)) if file.key == INTERACTIVE_ZIP_INPUT_NAME && file.filename.toLowerCase().endsWith(".zip") =>
             try {
-              val projectName = form.dataParts.get(INTERACTIVE_PROJECT_NAME_INPUT_NAME).flatMap(_.headOption).filter(_.trim.nonEmpty).getOrElse(file.filename)
-              Try(s3Actions.uploadInteractiveZip(file.ref.path, projectName, request.user.email, InteractiveUploaderConfig, controllerComponents.fileMimeTypes)) match {
+              Try(s3Actions.uploadInteractiveZip(file.ref.path, name, request.user.email, InteractiveUploaderConfig, controllerComponents.fileMimeTypes)) match {
                 case Success(Right(published)) =>
                   Ok(views.html.uploaded(request.user, Seq(published), previewUrl = published.url)(request))
                 case Success(Left(zipError)) =>
@@ -109,7 +109,7 @@ class Application(
             } finally {
               file.ref.delete()
             }
-          case _ => badRequestError("Choose one ZIP file containing your interactive.")
+          case _ => badRequestError("Choose one ZIP file containing your interactive and specify a project name.")
         }
     }
   }
