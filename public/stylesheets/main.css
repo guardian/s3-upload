@@ -125,3 +125,12 @@
         grid-column: 1;
     }
 }
+
+.mdl-button.copy-vanity-url {
+    min-width: 0;
+    height: 28px;
+    padding: 0 8px;
+    margin-left: 5px;
+    font-size: 12px;
+    line-height: 28px;
+}
