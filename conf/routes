@@ -10,7 +10,7 @@ POST    /upload-chart               controllers.Application.uploadChart
 
 GET     /interactive                controllers.Application.interactive
 POST    /interactive                controllers.Application.uploadInteractive
-GET     /interactive/commissioning-desks controllers.Application.commissioningDesks(query: String)
+GET     /interactive/commissioning-desks controllers.Application.commissioningDesks
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

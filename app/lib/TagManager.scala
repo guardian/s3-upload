@@ -17,9 +17,10 @@ object CommissioningDesk {
 }
 
 class TagManager(ws: WSClient, baseUrl: String)(implicit ec: ExecutionContext) {
-  def searchCommissioningDesks(query: String): Future[List[CommissioningDesk]] =
+  // There are a few hundred desks, so they are all fetched at once rather than searched for
+  def listCommissioningDesks(): Future[List[CommissioningDesk]] =
     ws.url(s"$baseUrl/hyper/tags")
-      .withQueryStringParameters("query" -> query, "limit" -> "20", "type" -> "tracking", "subType" -> "commissioningdesk")
+      .withQueryStringParameters("query" -> "*", "limit" -> "500", "type" -> "tracking", "subType" -> "commissioningdesk")
       .get()
       .map { response =>
         if (response.status != 200) throw new RuntimeException(s"Tag Manager returned ${response.status}")

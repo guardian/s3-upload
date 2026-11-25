@@ -85,8 +85,8 @@ class Application(
     Ok(views.html.interactive(request.user, None)(request))
   }
 
-  def commissioningDesks(query: String): Action[AnyContent] = AuthAction.async { _ =>
-    tagManager.searchCommissioningDesks(query).map(desks => Ok(Json.toJson(desks))).recover { case error =>
+  def commissioningDesks: Action[AnyContent] = AuthAction.async { _ =>
+    tagManager.listCommissioningDesks().map(desks => Ok(Json.toJson(desks))).recover { case error =>
       logger.error("Unable to search Tag Manager", error)
       BadGateway(Json.obj("error" -> "Tag Manager is unavailable"))
     }
