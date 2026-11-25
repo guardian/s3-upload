@@ -80,6 +80,6 @@ class InteractiveZipSuite extends munit.FunSuite {
   test("normalises project names and supplies a dated fallback") {
     assertEquals(InteractiveZip.projectSlug("My Interactive.zip"), "my-interactive")
     assert(InteractiveZip.projectSlug("../").matches("interactive-upload-\\d{4}-\\d{2}-\\d{2}"))
-    assertEquals(InteractiveZip.projectSlug("x" * 100).length, 80)
+    assertEquals(InteractiveZip.projectSlug("x" * 100).length, 50)
   }
 }

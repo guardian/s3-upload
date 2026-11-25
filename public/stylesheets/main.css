@@ -99,17 +99,38 @@
 }
 
 .interactive-upload-field {
+    display: grid;
+    grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
+    align-items: baseline;
+    gap: 8px 16px;
     margin-bottom: 24px;
 }
 
-.interactive-upload-field > label,
-.interactive-upload-field input[type="file"] {
-    display: block;
-    margin-bottom: 8px;
-}
-
-.interactive-upload-field input[type="file"],
-.interactive-upload-field .mdl-textfield {
+.interactive-upload-field input {
     width: 100%;
     min-width: 0;
+}
+
+.interactive-upload-field p {
+    grid-column: 2;
+    margin: 0;
+}
+
+@media (max-width: 479px) {
+    .interactive-upload-field {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .interactive-upload-field p {
+        grid-column: 1;
+    }
+}
+
+.mdl-button.copy-vanity-url {
+    min-width: 0;
+    height: 28px;
+    padding: 0 8px;
+    margin-left: 5px;
+    font-size: 12px;
+    line-height: 28px;
 }
