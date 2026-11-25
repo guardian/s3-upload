@@ -9,16 +9,18 @@ import lib._
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MaxSizeExceeded, Result}
 import play.api.libs.json._
 import com.gu.permissions.PermissionsProvider
-import lib.InteractiveZip.{INTERACTIVE_PROJECT_NAME_INPUT_NAME, INTERACTIVE_ZIP_INPUT_NAME}
+import lib.InteractiveZip.{INTERACTIVE_COMMISSIONING_DESKS_INPUT_NAME, INTERACTIVE_PROJECT_NAME_INPUT_NAME, INTERACTIVE_ZIP_INPUT_NAME}
 
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 class Application(
   s3Actions: S3Actions,
+  tagManager: TagManager,
   override val publicSettings: PublicSettings,
   override val permissions: PermissionsProvider,
   override val controllerComponents: ControllerComponents
-)(implicit mat: Materializer) extends PandaController {
+)(implicit mat: Materializer, ec: ExecutionContext) extends PandaController {
 
   def index = AuthAction { request => {
       Ok(views.html.index(request.user)(request))
@@ -83,6 +85,13 @@ class Application(
     Ok(views.html.interactive(request.user, None)(request))
   }
 
+  def commissioningDesks(query: String): Action[AnyContent] = AuthAction.async { _ =>
+    tagManager.searchCommissioningDesks(query).map(desks => Ok(Json.toJson(desks))).recover { case error =>
+      logger.error("Unable to search Tag Manager", error)
+      BadGateway(Json.obj("error" -> "Tag Manager is unavailable"))
+    }
+  }
+
   def uploadInteractive = AuthAction (parse.maxLength(parse.DefaultMaxDiskLength, parse.multipartFormData)) { request =>
 
     def badRequestError(message: String) = BadRequest(views.html.interactive(request.user, Some(message))(request))
@@ -92,10 +101,11 @@ class Application(
         EntityTooLarge(views.html.interactive(request.user, Some(s"ZIP must be smaller than ${bytesToMb(limit)} MB."))(request))
       case Right(form) =>
         val maybeProjectName = form.dataParts.get(INTERACTIVE_PROJECT_NAME_INPUT_NAME).flatMap(_.headOption).filter(_.trim.nonEmpty)
+        val commissioningDesks = form.dataParts.getOrElse(INTERACTIVE_COMMISSIONING_DESKS_INPUT_NAME, Nil).filter(CommissioningDesk.isValidId).distinct.toList
         (maybeProjectName, form.files) match {
           case (Some(projectName), Seq(file)) if file.key == INTERACTIVE_ZIP_INPUT_NAME && file.filename.toLowerCase().endsWith(".zip") =>
             try {
-              Try(s3Actions.uploadInteractiveZip(file.ref.path, projectName, request.user.email, InteractiveUploaderConfig, controllerComponents.fileMimeTypes)) match {
+              Try(s3Actions.uploadInteractiveZip(file.ref.path, projectName, request.user.email, commissioningDesks, InteractiveUploaderConfig, controllerComponents.fileMimeTypes)) match {
                 case Success(Right(published)) =>
                   Ok(views.html.uploaded(request.user, Seq(published), previewUrl = published.url)(request))
                 case Success(Left(zipError)) =>

@@ -45,3 +45,7 @@ For CODE and PROD, it is in S3 in the `media-service` account
 
 Visit `/interactive` and upload a ZIP with `index.html` at its root. The result is a public URL to `index.html` on the
 interactives CDN endpoint.
+
+Commissioning desks can optionally be chosen on the upload form. They are searched for in Tag Manager (`tagManager.url`
+in `/etc/gu/s3-uploader.properties`, defaulting to `https://tagmanager.<panda.domain>`) and written to the `commissioningDesks`
+field of the uploaded `config.json`, which `interactive-atom-maker` forwards to CAPI.

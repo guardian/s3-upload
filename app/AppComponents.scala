@@ -1,8 +1,9 @@
 import com.gu.pandomainauth.PublicSettings
 import controllers.{Application, AssetsComponents, Management}
-import lib.{S3Actions, S3UploadAppConfig}
+import lib.{S3Actions, S3UploadAppConfig, TagManager}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
+import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.EssentialFilter
 import play.api.routing.Router
 import play.filters.HttpFiltersComponents
@@ -10,7 +11,7 @@ import play.filters.cors.CORSComponents
 import router.Routes
 import com.gu.permissions.{PermissionsConfig, PermissionsProvider}
 
-class AppComponents(context: Context) extends BuiltInComponentsFromContext(context: Context) with HttpFiltersComponents with AssetsComponents with CORSComponents {
+class AppComponents(context: Context) extends BuiltInComponentsFromContext(context: Context) with HttpFiltersComponents with AssetsComponents with CORSComponents with AhcWSComponents {
 
   val s3Actions = new S3Actions()
 
@@ -30,8 +31,11 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
     )
   }
 
+  val tagManager = new TagManager(wsClient, S3UploadAppConfig.tagManagerUrl)(executionContext)
+
   val api = new Application(
     s3Actions,
+    tagManager,
     publicSettings,
     permissions,
     controllerComponents

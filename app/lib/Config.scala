@@ -47,6 +47,8 @@ trait Config {
     new URI(s"https://login.$domain/login?returnUrl=$returnUrl")
   }
 
+  val tagManagerUrl = properties.getOrElse("tagManager.url", s"https://tagmanager.$domain")
+
   val pinboardLoaderUrl = new URI(s"https://pinboard.$domain/pinboard.loader.js")
 
   implicit val stage : String = {

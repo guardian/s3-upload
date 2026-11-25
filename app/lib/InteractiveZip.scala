@@ -5,7 +5,8 @@ import java.time.{LocalDate, ZoneOffset}
 import java.util.{Date, Locale}
 import java.util.zip.{ZipEntry, ZipException, ZipFile}
 import scala.jdk.CollectionConverters._
-import scala.util.Using
+import play.api.libs.json.{JsObject, Json}
+import scala.util.{Try, Using}
 
 object InteractiveZip {
   // note - maximum overall zip size of 50mb is enforced by play.http.parser.maxDiskBuffer in application.conf
@@ -16,6 +17,8 @@ object InteractiveZip {
   val MAX_SLUG_LENGTH = 50
   val INTERACTIVE_ZIP_INPUT_NAME = "zipfile" // must match what's used in interactive.scala.html
   val INTERACTIVE_PROJECT_NAME_INPUT_NAME = "projectName" // must match what's used in interactive.scala.html
+  val INTERACTIVE_COMMISSIONING_DESKS_INPUT_NAME = "commissioningDesks" // must match what's used in interactive.scala.html
+  val ATOM_CONFIG_FILE = "config.json" // read by interactive-atom-maker
 
   private def dateToday: String = LocalDate.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
   private val DEFAULT_SLUG = s"interactive-upload-$dateToday"
@@ -43,6 +46,12 @@ object InteractiveZip {
     val slug = name.toLowerCase(Locale.ROOT).trim.stripSuffix(".zip")
       .replaceAll("[^a-z0-9_-]+", "-").stripPrefix("-").stripSuffix("-").take(MAX_SLUG_LENGTH)
     if (slug.isEmpty) DEFAULT_SLUG else slug
+  }
+
+  // Adds the commissioning desks to any config.json the zip already has, keeping its other fields
+  def configWithDesks(existing: Option[Array[Byte]], desks: List[String]): Array[Byte] = {
+    val existingConfig = existing.flatMap(bytes => Try(Json.parse(bytes)).toOption).collect { case obj: JsObject => obj }
+    Json.toBytes(existingConfig.getOrElse(Json.obj()) + ("commissioningDesks" -> Json.toJson(desks)))
   }
 
   def containsUnsafeChars(path: String): Boolean = {
