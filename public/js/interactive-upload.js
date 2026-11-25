@@ -15,3 +15,10 @@ interactiveZipInput.addEventListener("change", () => {
     updateInteractiveUploadButton();
 });
 updateInteractiveUploadButton();
+
+const desksSelect = document.getElementById("commissioningDesks");
+
+fetch(desksSelect.dataset.desksUrl)
+    .then(response => response.ok ? response.json() : [])
+    .then(desks => desks.forEach(({ id, name }) => desksSelect.add(new Option(name, id))))
+    .catch(() => {});

@@ -81,22 +81,31 @@ class S3Actions() {
     }
   }
 
-  def uploadInteractiveZip(archive: Path, project: String, userEmail: String, config: Config, mimeTypes: FileMimeTypes): Either[ZipError, S3UploadSuccess] = {
+  def uploadInteractiveZip(archive: Path, project: String, userEmail: String, commissioningDesks: List[String], config: Config, mimeTypes: FileMimeTypes): Either[ZipError, S3UploadSuccess] = {
     Using.resource(new ZipFile(archive.toFile)) { zip =>
       val prefix = config.key(s"${InteractiveZip.projectSlug(project)}/${UUID.randomUUID()}")
       InteractiveZip.getZippedFiles(zip).map { filesInZip =>
         // index.html last, so if there is a partial failure then we don't end up with a half-working index.html file
         // with missing assets
         val (indexFiles, assets) = filesInZip.partition(_.getName == "index.html")
-        val ordered = assets ++ indexFiles
-        val uploaded = ordered.map { entry =>
-          val baseRequest = PutObjectRequest.builder().bucket(config.bucketName).key(s"$prefix/${entry.getName}")
-            .contentType(mimeTypes.forFileName(entry.getName).getOrElse("application/octet-stream"))
+        val (configFiles, otherAssets) = assets.partition(_.getName == InteractiveZip.ATOM_CONFIG_FILE)
+        val zipConfig = configFiles.headOption.map(InteractiveZip.readFileFromZip(zip, _))
+        // interactive-atom-maker reads the desks from config.json, so they are merged into the zip's own copy if it has one
+        val configUpload: Option[(String, () => Array[Byte])] =
+          if (commissioningDesks.isEmpty) zipConfig.map(bytes => InteractiveZip.ATOM_CONFIG_FILE -> (() => bytes))
+          else Some(InteractiveZip.ATOM_CONFIG_FILE -> (() => InteractiveZip.configWithDesks(zipConfig, commissioningDesks)))
+
+        // contents are read one file at a time to keep memory use low
+        def zipUpload(entry: java.util.zip.ZipEntry): (String, () => Array[Byte]) = entry.getName -> (() => InteractiveZip.readFileFromZip(zip, entry))
+        val uploads = otherAssets.map(zipUpload) ++ configUpload ++ indexFiles.map(zipUpload)
+        val uploaded = uploads.map { case (name, readBytes) =>
+          val baseRequest = PutObjectRequest.builder().bucket(config.bucketName).key(s"$prefix/$name")
+            .contentType(mimeTypes.forFileName(name).getOrElse("application/octet-stream"))
             .cacheControl(s"max-age=${InteractiveZip.CACHE_CONTROL_MAX_AGE}")
             .metadata(Map("author" -> userEmail).asJava)
           val requestWithAcl = if (config.setPublicAcl) baseRequest.acl(ObjectCannedACL.PUBLIC_READ) else baseRequest
           val request = requestWithAcl.build()
-          config.s3Client.putObject(request, RequestBody.fromBytes(InteractiveZip.readFileFromZip(zip, entry)))
+          config.s3Client.putObject(request, RequestBody.fromBytes(readBytes()))
           request
         }
         // we return the root folder location, composer will find the index.html file

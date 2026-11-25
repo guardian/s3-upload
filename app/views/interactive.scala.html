@@ -19,6 +19,11 @@
                 <input id="@InteractiveZip.INTERACTIVE_PROJECT_NAME_INPUT_NAME" class="mdl-textfield__input" type="text" name="@InteractiveZip.INTERACTIVE_PROJECT_NAME_INPUT_NAME" maxlength="@InteractiveZip.MAX_SLUG_LENGTH" required aria-describedby="projectName-help">
                 <p id="zipfile-help" class="mdl-typography--caption mdl-color-text--grey-700">e.g. uk-election-2024</p>
             </div>
+            <div class="interactive-upload-field commissioning-desks">
+                <label for="@InteractiveZip.INTERACTIVE_COMMISSIONING_DESKS_INPUT_NAME" class="mdl-typography--subhead">Commissioning desks (optional):</label>
+                <select id="@InteractiveZip.INTERACTIVE_COMMISSIONING_DESKS_INPUT_NAME" name="@InteractiveZip.INTERACTIVE_COMMISSIONING_DESKS_INPUT_NAME" multiple size="6" aria-describedby="commissioningDesks-help" data-desks-url="@routes.Application.commissioningDesks"></select>
+                <p id="commissioningDesks-help" class="mdl-typography--caption mdl-color-text--grey-700">Hold Ctrl or Cmd to pick more than one. Added to the interactive's config.json.</p>
+            </div>
             <p class="mdl-typography--body-1 mdl-color-text--grey-700">Each upload creates a new public URL. Uploaded files will be publicly accessible.</p>
             <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="interactive-upload-submit" type="submit" disabled>Upload interactive</button>
         }

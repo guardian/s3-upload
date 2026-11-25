@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files
 import java.util.zip.{ZipEntry, ZipException, ZipFile, ZipOutputStream}
 import scala.util.Using
+import play.api.libs.json.Json
 import lib.InteractiveZip._
 
 class InteractiveZipSuite extends munit.FunSuite {
@@ -75,6 +76,14 @@ class InteractiveZipSuite extends munit.FunSuite {
   test("rejects duplicate file paths") {
     val entries = List(new ZipEntry("index.html"), new ZipEntry("index.html"))
     assertEquals(InteractiveZip.validateZip(entries), Left(DuplicateFilePathsError))
+  }
+
+  test("adds commissioning desks to an existing config.json, or creates one") {
+    val desks = List("tracking/commissioningdesk/uk-news")
+    val merged = Json.parse(InteractiveZip.configWithDesks(Some("""{"title":"a title"}""".getBytes(UTF_8)), desks))
+    assertEquals(merged, Json.obj("title" -> "a title", "commissioningDesks" -> desks))
+    assertEquals(Json.parse(InteractiveZip.configWithDesks(None, desks)), Json.obj("commissioningDesks" -> desks))
+    assertEquals(Json.parse(InteractiveZip.configWithDesks(Some("not json".getBytes(UTF_8)), desks)), Json.obj("commissioningDesks" -> desks))
   }
 
   test("normalises project names and supplies a dated fallback") {

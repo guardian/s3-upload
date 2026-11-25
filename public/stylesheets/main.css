@@ -106,7 +106,8 @@
     margin-bottom: 24px;
 }
 
-.interactive-upload-field input {
+.interactive-upload-field input,
+.interactive-upload-field select {
     width: 100%;
     min-width: 0;
 }
