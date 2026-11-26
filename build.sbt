@@ -18,7 +18,9 @@ libraryDependencies ++= Seq(
   "com.gu" %% "pan-domain-auth-verification" % "22.2.0",
   "com.gu" %% "editorial-permissions-client" % "8.0.0",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.21.7",
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.7"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.7",
+  // Addressing vulnerability in 33.4.8-jre. Check if this can be removed once there is a new release of Play
+  "com.google.guava" % "guava" % "33.8.0-jre"
 )
 
 resolvers ++= Resolver.sonatypeOssRepos("releases")
